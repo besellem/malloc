@@ -6,39 +6,18 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:19:54 by besellem          #+#    #+#             */
-/*   Updated: 2021/11/02 01:27:51 by besellem         ###   ########.fr       */
+/*   Updated: 2021/11/03 00:11:31 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
-#include "incs/malloc.h"
 
-void	*ft_memcpy(void *dst, const void *src, size_t n)
-{
-	const size_t		_sz = sizeof(unsigned long long);
-	unsigned long long	*l_src;
-	unsigned long long	*l_dst;
-	char				*c_src;
-	char				*c_dst;
-
-	if (dst == src)
-		return (dst);
-	l_src = (unsigned long long *)src;
-	l_dst = (unsigned long long *)dst;
-	while (n >= _sz)
-	{
-		*l_dst++ = *l_src++;
-		n -= _sz;
-	}
-	if (n > 0)
-	{
-		c_src = (char *)l_src;
-		c_dst = (char *)l_dst;
-		while (n--)
-			*c_dst++ = *c_src++;
-	}
-	return (dst);
-}
+#if 1
+# include "incs/malloc.h"
+#else
+# include <unistd.h>
+# include <stdlib.h>
+#endif
 
 #define HEX  "0123456789abcdef"
 // PRINT_MEMORY
@@ -123,24 +102,26 @@ void	*ft_print_memory(void *addr, unsigned int size)
 
 int	main(void)
 {
-	struct rlimit	lim;
-	int				ret = getrlimit(RLIMIT_MEMLOCK, &lim);
-	const int		pagesize = getpagesize();
+	struct rlimit			lim;
+	__unused int			ret = getrlimit(RLIMIT_MEMLOCK, &lim);
+	__unused const int		pagesize = getpagesize();
 
-	printf("pagesize: [%d]\n", pagesize);
-	printf("pagesize tiny:  [%8d] ZONE_TINY:  [%8d]\n",  TINY * pagesize, ZONE_TINY);
-	printf("pagesize small: [%8d] ZONE_SMALL: [%8d]\n", SMALL * pagesize, ZONE_SMALL);
-	printf("pagesize large: [%8d] ZONE_LARGE: [%8d]\n", LARGE * pagesize, ZONE_LARGE);
+	printf("pagesize:   [%8d]\n", pagesize);
+	printf("ZONE_TINY:  [%8zu]\n", ZONE_TINY);
+	printf("ZONE_SMALL: [%8zu]\n", ZONE_SMALL);
 	
 	// printf("ret: %d\n", ret);
-	// printf("cur: [%llu]  max: [%llu]\n", lim.rlim_cur, lim.rlim_max);
+	// printf("cur: [%20llu]  max: [%20llu]\n", lim.rlim_cur, lim.rlim_max);
+	// printf("cur: [%20llx]  max: [%20llx]\n", lim.rlim_cur, lim.rlim_max);
 
 
 	const char	str[] = "Hello World!";
 	size_t		size = sizeof(str);
-	void		*ptr = NULL;
+	void		*ptr = malloc(size);
+	void		*ptr2 = malloc(size);
+	void		*ptr3 = malloc(10000);
+	// void		*ptr4 = malloc(3000);
 
-	ptr = malloc(size);
 	if (NULL == ptr)
 	{
 		dprintf(STDERR_FILENO, "Error: malloc(%zu)\n", size);
@@ -151,13 +132,21 @@ int	main(void)
 	// ft_print_memory(ptr - sizeof(block_t), size + sizeof(block_t));
 
 	ft_memcpy(ptr, str, size);
+	ft_memcpy(ptr2, str, size);
 	// dprintf(STDOUT_FILENO, "[%p] [%s]\n", ptr, ptr);
-	ft_print_memory(ptr - sizeof(block_t), size + sizeof(block_t));
+	ft_print_memory(*first_block(), *last_block() - *first_block());
+	
+	// for (size_t i = 0; i < 20; i++)
+	// {
+	// 	printf("align(%2zu): [%zu]\n", i, align(i));
+	// }
+	
 
 	// printf("offset: [%zu]\n", __offsetof(block_t, _in_use));
-	
 	free(ptr);
 	// ft_print_memory(ptr - sizeof(block_t), size + sizeof(block_t));
-	free(ptr);
+	free(ptr2);
+	free(ptr3);
+	// free(ptr4);
 	return (0);
 }

@@ -6,7 +6,7 @@
 #    By: besellem <besellem@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/25 01:10:15 by besellem          #+#    #+#              #
-#    Updated: 2021/11/03 21:36:46 by besellem         ###   ########.fr        #
+#    Updated: 2021/11/05 00:52:59 by besellem         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,7 @@ endif
 
 NAME		:=	libft_malloc_$(HOSTTYPE).so
 NAME_LINK	:=	libft_malloc.so
+EXECUTABLE	:=	malloc_test
 
 ## Main directories
 BUILD_DIR	:=	.build
@@ -46,7 +47,7 @@ RM			:=	rm -f
 
 
 # Colors
-CLR_COLOR	:= \033[0m
+CLR			:= \033[0m
 RED			:= \033[1;31m
 GREEN		:= \033[1;32m
 YELLOW		:= \033[1;33m
@@ -56,36 +57,36 @@ CYAN 		:= \033[1;36m
 
 ## Compilation
 $(NAME):	$(OBJS) ./main.c
-			@echo "Creating $(RED_COLOR)$@ $(CLR_COLOR)..."
+			@echo "Creating $(RED)$@ $(CLR)..."
 			@$(LIBC) $(NAME) $(OBJS)
 			@ln -s $(NAME) $(NAME_LINK)
 
-			@$(CC) $(CFLAGS) $(INCS) main.c $(NAME_LINK)
+			@$(CC) $(CFLAGS) $(INCS) main.c $(NAME_LINK) -o $(EXECUTABLE)
 
-			@echo "$(GREEN)Compilation $(YELLOW)of $(RED)$@ $(BLUE)done$(CLR_COLOR)"
+			@echo "$(GREEN)Compilation $(YELLOW)of $(RED)$@ $(BLUE)done$(CLR)"
 
 all:		$(NAME)
 
 bonus:		all
 
 clean:
-			@ echo "Deleting $(CYAN)malloc $(CLR_COLOR)objs ..."
+			@ echo "Deleting $(CYAN)malloc $(CLR)objs ..."
 			@ $(RM) $(OBJS)
 			@ rm -rf $(BUILD_DIR)
-			@ $(RM) -rf a.out a.out.dSYM
+			@ $(RM) -rf $(EXECUTABLE) $(EXECUTABLE).dSYM
 
 fclean:		clean
-			@ echo "Deleting $(CYAN)malloc $(CLR_COLOR)library ..."
+			@ echo "Deleting $(CYAN)malloc $(CLR)library ..."
 			@ $(RM) $(NAME) $(NAME_LINK)
 
 re:			fclean all
 
 $(BUILD_DIR):
-			@ echo "Creating $(RED)$@ $(CLR_COLOR)..."
+			@ echo "Creating $(RED)$@ $(CLR)..."
 			@ mkdir $@ $(DIRS)
 
 $(OBJ_DIR)/%.o:$(SRCS_DIR)/%.c ./incs/malloc.h | $(BUILD_DIR)
-			@ echo "Compiling $(YELLOW)$< $(CLR_COLOR)..."
+			@ echo "Compiling $(YELLOW)$< $(CLR)..."
 			@ $(CC) $(CFLAGS) -c $< -o $@ $(INCS)
 
 .PHONY:		all clean fclean re

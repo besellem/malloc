@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2021/11/03 00:10:39 by besellem         ###   ########.fr       */
+/*   Updated: 2021/11/05 00:58:05 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@
 # if defined(MALLOC_DEBUG)
 #  define LOG          printf(GREEN "%s:%d:" CLR " Here\n", __FILE__, __LINE__);
 # else
-#  define LOG          ;
+#  define LOG
 # endif /* defined(MALLOC_DEBUG) */
 
 

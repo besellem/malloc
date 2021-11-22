@@ -41,7 +41,7 @@ OBJS 		:=	$(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 ## Commands
 CC			:=	clang
-CFLAGS		:=	-Wall -Wextra -Werror# -g3 -fsanitize=address #-O1
+CFLAGS		:=	-Wall -Wextra -Werror -g3 -fsanitize=address #-O1
 LIBC		:=	ar rc
 RM			:=	rm -f
 
@@ -59,7 +59,7 @@ CYAN 		:= \033[1;36m
 $(NAME):	$(OBJS) ./main.c
 			@echo "Creating $(RED)$@ $(CLR)..."
 			@$(LIBC) $(NAME) $(OBJS)
-			@ln -s $(NAME) $(NAME_LINK)
+			@ln -s $(NAME) $(NAME_LINK) 2>/dev/null
 
 			@$(CC) $(CFLAGS) $(INCS) main.c $(NAME_LINK) -o $(EXECUTABLE)
 

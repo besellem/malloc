@@ -32,11 +32,15 @@
 
 void	*realloc(__unused void *ptr, __unused size_t size)
 {
-	void		*new_ptr = NULL;
-	// malloc_t	_p;
+	void	*new_ptr = NULL;
+	size_t	ptr_size = 0;
 
-	// _init(&_p);
-	// new_ptr = _p._ptr;
-	// _end(&_p);
+	if (NULL == ptr)
+		return (malloc(size));
+	ptr_size = get_ptr_size((void *)ptr - BLOCK_SIZE);
+	new_ptr = malloc(size + ptr_size);
+	if (!new_ptr)
+		return (NULL);
+	ft_memcpy(new_ptr, ptr, ptr_size);
 	return (new_ptr);
 }

@@ -18,6 +18,5 @@ void	*reallocf(void *ptr, size_t size)
 
 	if (NULL == p)
 		free(ptr);
-	return p;
+	return (p);
 }
-

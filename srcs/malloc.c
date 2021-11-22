@@ -17,7 +17,6 @@
 // 	return (realloc(NULL, size));
 // }
 
-
 block_t		**first_block(void)
 {
 	static block_t	*block = NULL;
@@ -30,6 +29,26 @@ block_t		**last_block(void)
 	static block_t	*block = NULL;
 
 	return (&block);
+}
+
+size_t		get_ptr_global_size(void *ptr)
+{
+	block_t	*block = (block_t *)ptr;
+	size_t	size = 0;
+
+	while (block)
+	{
+		size += block->_size;
+		block = block->_next;
+	}
+	return (size);
+}
+
+size_t		get_ptr_size(void *ptr)
+{
+	const block_t	*block = (block_t *)ptr;
+
+	return (block->_size);
 }
 
 
@@ -95,15 +114,15 @@ void		print_blocks(void)
 {
 	block_t	*block = *first_block();
 
-	printf(GREEN "\n.................BLOCKS................." CLR "\n");
-	printf(CYAN "    addr    |    next    |    size    | used" CLR "\n");
+	printf(GREEN "\n..................BLOCKS.................." CLR "\n");
+	printf(CYAN "    addr    |    next    |   size   | used" CLR "\n");
 	while (block)
 	{
-		printf("%11p:  %11p  %10zu    %u\n",
+		printf(" %11p  %11p  %9zu   %u\n",
 			block, block->_next, block->_size, block->_in_use);
 		block = block->_next;
 	}
-	printf(GREEN "...............BLOCKS.END..............." CLR "\n\n");
+	printf(GREEN "................BLOCKS.END................" CLR "\n\n");
 }
 
 block_t		*create_block(size_t size)
@@ -130,11 +149,13 @@ block_t		*create_block(size_t size)
 
 	LOG;
 	print_blocks();
-	printf("before -> first[%p] last[%p]\n", *first_block(), *last_block());
+	printf("before -> first[%11p] last[%11p] diff[%+td]\n",
+		*first_block(), *last_block(), (ptrdiff_t)*last_block() - (ptrdiff_t)*first_block());
 
 	add_block(block);
 
-	printf("after  -> first[%p] last[%p]\n", *first_block(), *last_block());
+	printf("after  -> first[%11p] last[%11p] diff[%+td]\n",
+		*first_block(), *last_block(), (ptrdiff_t)*last_block() - (ptrdiff_t)*first_block());
 	LOG;
 	print_blocks();
 	

@@ -107,6 +107,7 @@ int	main(void)
 	__unused const int		pagesize = getpagesize();
 
 	printf("pagesize:   [%8d]\n", pagesize);
+	printf("BLOCK_SIZE: [%8zu]\n", BLOCK_SIZE);
 	printf("ZONE_TINY:  [%8zu]\n", ZONE_TINY);
 	printf("ZONE_SMALL: [%8zu]\n", ZONE_SMALL);
 	
@@ -117,9 +118,9 @@ int	main(void)
 
 	const char	str[] = "Hello World!";
 	size_t		size = sizeof(str);
-	void		*ptr = malloc(size);
-	void		*ptr2 = malloc(size);
-	void		*ptr3 = malloc(10000);
+	__unused void		*ptr = malloc(size);
+	__unused void		*ptr2 = malloc(size);
+	__unused void		*ptr3 = malloc(10000);
 	// void		*ptr4 = malloc(3000);
 
 	if (NULL == ptr)
@@ -143,10 +144,12 @@ int	main(void)
 	
 
 	// printf("offset: [%zu]\n", __offsetof(block_t, _in_use));
-	free(ptr);
+	// free(ptr);
 	// ft_print_memory(ptr - sizeof(block_t), size + sizeof(block_t));
-	free(ptr2);
-	free(ptr3);
+	// free(ptr2);
+	// free(ptr3);
+
+	ft_check_leaks();
 	// free(ptr4);
 	return (0);
 }

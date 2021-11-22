@@ -39,6 +39,7 @@
 # define BLOCK_FREED  0
 # define BLOCK_IN_USE 1
 # define BLOCK_SIZE   sizeof(block_t)
+# define SYSCALL_ERR  (-1)
 
 # define TINY          64UL
 # define SMALL        512UL
@@ -47,7 +48,7 @@
 # define ZONE_SMALL   align(SMALL * 100)
 
 # if defined(MALLOC_DEBUG)
-#  define LOG          printf(GREEN "%s:%d:" CLR " Here\n", __FILE__, __LINE__);
+#  define LOG         printf(GREEN "%s:%d:" CLR " Here\n", __FILE__, __LINE__);
 # else
 #  define LOG
 # endif /* defined(MALLOC_DEBUG) */
@@ -68,7 +69,7 @@
 # elif __SIZEOF_SIZE_T__ == 8 // 64 bits
 #  define align(x) ((((x) - 1) >> 3) << 3) + __SIZEOF_SIZE_T__
 # else
-#  error "Unsupported architecture: what kind of system do you own ??"
+#  error "Unsupported architecture: what kind of system do you own ?"
 # endif
 
 
@@ -82,17 +83,22 @@
 // }	malloc_t;
 
 
-typedef unsigned long long		wide_int_t;
+/* Bigger integer size (128 bits or other) */
+#ifdef __SIZEOF_INT128__
+typedef __uint128_t            wide_int_t;
+#else
+typedef unsigned long long     wide_int_t;
+#endif
+
 typedef struct s_block			block_t;
 
-// struct __attribute__((packed)) s_block
-struct s_block
+struct //__attribute__((packed))
+s_block
 {
-	unsigned char	_in_use;
+	unsigned char	_in_use : 2;
 	size_t			_size;
 	block_t			*_next;
 };
-
 
 
 /*
@@ -104,5 +110,7 @@ void	*ft_memcpy(void *dst, const void *src, size_t n);
 
 block_t		**first_block(void);
 block_t		**last_block(void);
+size_t		get_ptr_global_size(void *ptr);
+size_t		get_ptr_size(void *ptr);
 
 #endif

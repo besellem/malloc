@@ -75,15 +75,22 @@ void		split_block(block_t *block, size_t size)
 
 void		add_block(block_t *block)
 {
-	block_t	*last = *last_block();
+	block_t	*last = *last_block(); // current last block
+	block_t	*_tmp_last;            // last block of the new `block'
 
+	if (!block)
+		return ;
+	
 	if (NULL == *first_block())
 		*first_block() = block;
+
+	/* add new block to the list */
 	if (last)
-	{
 		last->_next = block;
-	}
-	*last_block() = block->_next;
+
+	/* get last block & set *last_block() to it */
+	for (_tmp_last = block; _tmp_last->_next; _tmp_last = _tmp_last->_next);
+	*last_block() = _tmp_last;
 }
 
 block_t		*find_block(size_t size)
@@ -112,16 +119,16 @@ block_t		*find_block(size_t size)
 
 void		print_blocks(void)
 {
-	block_t	*block = *first_block();
+	const block_t	*blk = *first_block();
 
 	printf(GREEN "\n..................BLOCKS.................." CLR "\n");
 	printf(CYAN "    addr    |    next    |   size   | used" CLR "\n");
-	while (block)
+
+	for ( ; blk; blk = blk->_next)
 	{
-		printf(" %11p  %11p  %9zu   %u\n",
-			block, block->_next, block->_size, block->_in_use);
-		block = block->_next;
+		printf(" %11p  %11p  %9zu   %u\n", blk, blk->_next, blk->_size, blk->_in_use);
 	}
+	
 	printf(GREEN "................BLOCKS.END................" CLR "\n\n");
 }
 
@@ -136,9 +143,7 @@ block_t		*create_block(size_t size)
 	{
 
 #ifndef MALLOC_DEBUG
-		
 		dprintf(STDERR_FILENO, RED "Error:" CLR " mmap(%zu)\n", _siz);
-		
 #endif /* MALLOC_DEBUG */
 
 		return (NULL);
@@ -184,5 +189,5 @@ void	*malloc(size_t size)
 	print_blocks();
 	
 	printf(GREEN "<" CLR " IN MALLOC\n");
-	return ((void *)block + BLOCK_SIZE);
+	return (get_ptr_user(block));
 }

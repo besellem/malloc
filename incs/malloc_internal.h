@@ -34,18 +34,19 @@
 # define CLR   "\e[0m"
 
 # define MALLOC_DEBUG
-// # define THREAD_SAFE
+/* # define THREAD_SAFE */
 
 # define BLOCK_FREED  0
 # define BLOCK_IN_USE 1
 # define BLOCK_SIZE   sizeof(block_t)
 # define SYSCALL_ERR  (-1)
 
-# define TINY          64UL
-# define SMALL        512UL
+# define TINY         ( 32UL + BLOCK_SIZE)
+# define SMALL        (128UL + BLOCK_SIZE)
 
-# define ZONE_TINY    align(TINY  * 100)
+# define ZONE_TINY    align( TINY * 100)
 # define ZONE_SMALL   align(SMALL * 100)
+
 
 # if defined(MALLOC_DEBUG)
 #  define LOG         printf(GREEN "%s:%d:" CLR " Here\n", __FILE__, __LINE__);
@@ -61,6 +62,10 @@
 /* define which zone size is best fitted to allocate */
 # define define_block_size(size) \
 	(((size) <= TINY) ? ZONE_TINY : (((size) <= SMALL) ? ZONE_SMALL : (size)));
+
+
+# define get_ptr_meta(ptr) ((void *)ptr - BLOCK_SIZE)
+# define get_ptr_user(ptr) ((void *)ptr + BLOCK_SIZE)
 
 
 /* align() will help us aligning memory */
@@ -90,15 +95,20 @@ typedef __uint128_t            wide_int_t;
 typedef unsigned long long     wide_int_t;
 #endif
 
-typedef struct s_block			block_t;
 
-struct //__attribute__((packed))
+/*
+** block list containing all allocated blocks:
+**  _in_use : `BLOCK_IN_USE' if block is in use, `BLOCK_FREED' if free
+**  _size   : size of the block
+**  _next   : pointer to the next block in the list
+*/
+typedef struct //__attribute__((packed))
 s_block
 {
 	unsigned char	_in_use : 2;
 	size_t			_size;
-	block_t			*_next;
-};
+	struct s_block	*_next;
+}	block_t;
 
 
 /*

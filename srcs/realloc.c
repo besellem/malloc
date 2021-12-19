@@ -30,14 +30,14 @@
 // 	ft_memset(p, 0, sizeof(malloc_t));
 // }
 
-void	*realloc(__unused void *ptr, __unused size_t size)
+void	*realloc(void *ptr, size_t size)
 {
 	void	*new_ptr = NULL;
 	size_t	ptr_size = 0;
 
 	if (NULL == ptr)
 		return (malloc(size));
-	ptr_size = get_ptr_size((void *)ptr - BLOCK_SIZE);
+	ptr_size = get_ptr_size(get_ptr_meta(ptr));
 	new_ptr = malloc(size + ptr_size);
 	if (!new_ptr)
 		return (NULL);

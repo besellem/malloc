@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 #if 1
-# include "incs/malloc.h"
+# include "./incs/malloc.h"
 #else
 # include <unistd.h>
 # include <stdlib.h>
@@ -117,7 +117,7 @@ int	main(void)
 
 
 	const char	str[] = "Hello World!";
-	size_t		size = sizeof(str);
+	const size_t		size = sizeof(str);
 	__unused void		*ptr = malloc(size);
 	__unused void		*ptr2 = malloc(size);
 	__unused void		*ptr3 = malloc(10000);
@@ -144,10 +144,11 @@ int	main(void)
 	
 
 	// printf("offset: [%zu]\n", __offsetof(block_t, _in_use));
-	// free(ptr);
+	free(ptr);
 	// ft_print_memory(ptr - sizeof(block_t), size + sizeof(block_t));
-	// free(ptr2);
-	// free(ptr3);
+	free(ptr2);
+	free(ptr3);
+	free(ptr3);
 
 	ft_check_leaks();
 	// free(ptr4);

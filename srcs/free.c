@@ -19,7 +19,7 @@ void	ft_check_leaks(void)
 	size_t	sanitized_leaks = 0;
 	size_t	real_leaks = 0;
 
-	while (block)
+	for ( ; block != NULL; block = block->_next)
 	{
 		if (BLOCK_IN_USE == block->_in_use)
 		{
@@ -28,7 +28,6 @@ void	ft_check_leaks(void)
 			printf(RED "leak" CLR " -> addr[%11p] size[%zu]\n",
 				block, block->_size - BLOCK_SIZE);
 		}
-		block = block->_next;
 	}
 	printf(RED "total leaked" CLR "         -> %zu bytes\n", sanitized_leaks);
 	printf(RED "total used by mmap()" CLR " -> %zu bytes\n", real_leaks);
@@ -38,36 +37,37 @@ void	ft_check_leaks(void)
 /* joins two blocks starting with `block' */
 void	join_blocks(block_t *block)
 {
-	block_t	*tmp;
+	block_t	*_next;
 
-	if (!block)
+	if (!block || !block->_next)
 		return ;
-	tmp = block->_next;
-	if (!tmp)
-		return ;
-	if (BLOCK_FREED == block->_in_use && BLOCK_FREED == tmp->_in_use)
+
+	_next = block->_next;
+	if (BLOCK_FREED == block->_in_use && BLOCK_FREED == _next->_in_use)
 	{
-		block->_size += tmp->_size;
-		block->_next = tmp->_next;
+		block->_size += _next->_size;
+		block->_next = _next->_next;
 	}
 }
 
 void	free(void *ptr)
 {
-	block_t		*block;
-	block_t		*tmp;
+	block_t	*block;
+	block_t	*tmp;
 
 	printf(GREEN ">" CLR " IN FREE\n");
 	
 	if (NULL == ptr)
 		return ;
-	block = (block_t *)(ptr - sizeof(block_t));
+
+	/* there's no allocated blocks left, must be a double free */
+	if (!*first_block())
+	{
+		dprintf(STDERR_FILENO, BLUE "Warning:" CLR " Attempting double free on address %p\n", ptr);
+		return ;
+	}
 	
-	// dprintf(STDOUT_FILENO, "in use: [%d] total_size [%zu]\n",
-	// 	block->_in_use, block->_size + sizeof(block_t));
-
-	// ft_print_memory(block, sizeof(block_t));
-
+	block = (block_t *)get_ptr_meta(ptr);
 	if (BLOCK_FREED == block->_in_use)
 	{
 		dprintf(STDERR_FILENO, BLUE "Warning:" CLR " Attempting double free on address %p\n", ptr);
@@ -86,7 +86,7 @@ void	free(void *ptr)
 			else
 				tmp = tmp->_next;
 		}
-		
+			
 		if (*first_block() && NULL == (*first_block())->_next)
 		{
 
@@ -94,7 +94,7 @@ void	free(void *ptr)
 
 			munmap(*first_block(), (*first_block())->_size);
 
-#else
+#else /* MALLOC_DEBUG */
 
 			if (SYSCALL_ERR == munmap(*first_block(), (*first_block())->_size))
 			{
@@ -108,7 +108,7 @@ void	free(void *ptr)
 			*first_block() = NULL;
 		}
 
-#endif /* MALLOC_DEBUG */
+#endif /* !MALLOC_DEBUG */
 
 	}
 	printf(GREEN "<" CLR " IN FREE\n");

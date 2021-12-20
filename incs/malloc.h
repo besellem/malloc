@@ -23,6 +23,6 @@ void	*calloc(size_t count, size_t size);
 
 void	show_alloc_mem(void);
 void	show_alloc_mem_ex(void);
-void	ft_check_leaks(void);
+void	ft_check_memory_leaks(void);
 
 #endif

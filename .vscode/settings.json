@@ -24,6 +24,7 @@
 		"ios": "c",
 		"optional": "c",
 		"stdexcept": "c",
-		"typeinfo": "c"
+		"typeinfo": "c",
+		"stdbool.h": "c"
 	}
 }

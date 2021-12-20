@@ -33,19 +33,26 @@
 # define BLUE  "\e[1;34m"
 # define CLR   "\e[0m"
 
-# define MALLOC_DEBUG
+# if 1
+#  define MALLOC_DEBUG
+# endif
 /* # define THREAD_SAFE */
+
+# define SYSCALL_ERR  (-1)
 
 # define BLOCK_FREED  0
 # define BLOCK_IN_USE 1
 # define BLOCK_SIZE   sizeof(block_t)
-# define SYSCALL_ERR  (-1)
 
 # define TINY         ( 32UL + BLOCK_SIZE)
-# define SMALL        (128UL + BLOCK_SIZE)
+# define SMALL        (256UL + BLOCK_SIZE)
 
 # define ZONE_TINY    align( TINY * 100)
 # define ZONE_SMALL   align(SMALL * 100)
+
+
+# define MIN(x, y)    ((x) < (y) ? (x) : (y))
+# define MAX(x, y)    ((x) > (y) ? (x) : (y))
 
 
 # if defined(MALLOC_DEBUG)
@@ -64,7 +71,7 @@
 	(((size) <= TINY) ? ZONE_TINY : (((size) <= SMALL) ? ZONE_SMALL : (size)));
 
 
-# define get_ptr_meta(ptr) ((void *)ptr - BLOCK_SIZE)
+# define get_ptr_meta(ptr) ((block_t *)((void *)ptr - BLOCK_SIZE))
 # define get_ptr_user(ptr) ((void *)ptr + BLOCK_SIZE)
 
 
@@ -89,23 +96,23 @@
 
 
 /* Bigger integer size (128 bits or other) */
-#ifdef __SIZEOF_INT128__
+# ifdef __SIZEOF_INT128__
 typedef __uint128_t            wide_int_t;
-#else
+# else
 typedef unsigned long long     wide_int_t;
-#endif
+# endif
 
 
 /*
 ** block list containing all allocated blocks:
-**  _in_use : `BLOCK_IN_USE' if block is in use, `BLOCK_FREED' if free
-**  _size   : size of the block
+**  _status : `BLOCK_IN_USE' if block is in use, `BLOCK_FREED' if free
+**  _size   : size of the block (also contains meta size)
 **  _next   : pointer to the next block in the list
 */
 typedef struct //__attribute__((packed))
 s_block
 {
-	unsigned char	_in_use : 2;
+	unsigned char	_status : 2;
 	size_t			_size;
 	struct s_block	*_next;
 }	block_t;
@@ -120,7 +127,7 @@ void	*ft_memcpy(void *dst, const void *src, size_t n);
 
 block_t		**first_block(void);
 block_t		**last_block(void);
-size_t		get_ptr_global_size(void *ptr);
-size_t		get_ptr_size(void *ptr);
+void		print_blocks(void);
+void		split_block(block_t *block, size_t size);
 
 #endif

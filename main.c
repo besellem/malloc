@@ -115,42 +115,37 @@ int	main(void)
 	// printf("cur: [%20llu]  max: [%20llu]\n", lim.rlim_cur, lim.rlim_max);
 	// printf("cur: [%20llx]  max: [%20llx]\n", lim.rlim_cur, lim.rlim_max);
 
-
-	const char	str[] = "Hello World!";
+	const char			str[] = "Hello World!";
 	const size_t		size = sizeof(str);
+	
 	__unused void		*ptr = malloc(size);
-	__unused void		*ptr2 = malloc(size);
-	__unused void		*ptr3 = malloc(10000);
-	// void		*ptr4 = malloc(3000);
+	// __unused void		*ptr2 = malloc(size);
+	// __unused void		*ptr3 = malloc(16000);
+	// __unused void		*ptr4 = malloc(1000);
 
 	if (NULL == ptr)
 	{
 		dprintf(STDERR_FILENO, "Error: malloc(%zu)\n", size);
 		return (1);
 	}
-	printf("ptr [%p]\n", ptr);
-
-	// ft_print_memory(ptr - sizeof(block_t), size + sizeof(block_t));
 
 	ft_memcpy(ptr, str, size);
-	ft_memcpy(ptr2, str, size);
-	// dprintf(STDOUT_FILENO, "[%p] [%s]\n", ptr, ptr);
-	ft_print_memory(*first_block(), *last_block() - *first_block());
-	
-	// for (size_t i = 0; i < 20; i++)
-	// {
-	// 	printf("align(%2zu): [%zu]\n", i, align(i));
-	// }
+	ft_print_memory(get_ptr_meta(ptr), get_ptr_meta(ptr)->_size);
+
+	ptr = realloc(ptr, 10);
+	ft_print_memory(get_ptr_meta(ptr), get_ptr_meta(ptr)->_size);
+
+	// ft_memcpy(ptr2, str, size);
 	
 
-	// printf("offset: [%zu]\n", __offsetof(block_t, _in_use));
+	// ft_print_memory(*first_block(), (ptrdiff_t)*last_block() - (ptrdiff_t)*first_block());
+	
 	free(ptr);
-	// ft_print_memory(ptr - sizeof(block_t), size + sizeof(block_t));
-	free(ptr2);
-	free(ptr3);
-	free(ptr3);
-
-	ft_check_leaks();
+	// free(ptr2);
+	// free(ptr3);
 	// free(ptr4);
+	
+	ft_check_memory_leaks();
+
 	return (0);
 }

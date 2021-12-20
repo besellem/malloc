@@ -33,14 +33,34 @@
 void	*realloc(void *ptr, size_t size)
 {
 	void	*new_ptr = NULL;
-	size_t	ptr_size = 0;
+	block_t	*block;
 
 	if (NULL == ptr)
 		return (malloc(size));
-	ptr_size = get_ptr_size(get_ptr_meta(ptr));
-	new_ptr = malloc(size + ptr_size);
-	if (!new_ptr)
-		return (NULL);
-	ft_memcpy(new_ptr, ptr, ptr_size);
-	return (new_ptr);
+	
+	print_blocks();
+
+	block = get_ptr_meta(ptr);
+	if (!block->_next ||
+		BLOCK_IN_USE == block->_next->_status ||
+		(block->_size + block->_next->_size) < size)
+	{
+		new_ptr = malloc(size);
+		if (!new_ptr)
+			return (NULL);
+		ft_memcpy(new_ptr, ptr, block->_size - BLOCK_SIZE);
+		free(ptr);
+		return (new_ptr);
+	}
+
+	/* case where we realloc a lower size than ptr size */
+	
+	// if (size < block->_size)
+	// 	split_block(block, size);
+	// else
+		split_block(block, align(size + BLOCK_SIZE));
+
+	print_blocks();
+
+	return (ptr);
 }

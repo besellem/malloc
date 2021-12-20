@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../incs/malloc.h"
+#include "malloc.h"
 
 // static void	_init(malloc_t *p)
 // {
@@ -54,7 +54,7 @@ void	*realloc(void *ptr, size_t size)
 	}
 
 	/* case where we realloc a lower size than ptr size */
-	
+
 	// if (size < block->_size)
 	// 	split_block(block, size);
 	// else

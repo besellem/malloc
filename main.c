@@ -13,7 +13,7 @@
 #include <stdio.h>
 
 #if 1
-# include "./incs/malloc.h"
+# include "malloc.h"
 #else
 # include <unistd.h>
 # include <stdlib.h>
@@ -132,8 +132,8 @@ int	main(void)
 	ft_memcpy(ptr, str, size);
 	ft_print_memory(get_ptr_meta(ptr), get_ptr_meta(ptr)->_size);
 
-	ptr = realloc(ptr, 10);
-	ft_print_memory(get_ptr_meta(ptr), get_ptr_meta(ptr)->_size);
+	// ptr = realloc(ptr, 10);
+	// ft_print_memory(get_ptr_meta(ptr), get_ptr_meta(ptr)->_size);
 
 	// ft_memcpy(ptr2, str, size);
 	

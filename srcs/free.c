@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../incs/malloc.h"
+#include "malloc.h"
 
 void	ft_check_memory_leaks(void)
 {

@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../incs/malloc.h"
+#include "malloc.h"
 
 block_t	**first_block(void)
 {

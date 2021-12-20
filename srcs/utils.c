@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../incs/malloc_internal.h"
+#include "malloc_internal.h"
 
 /*
 ** MEMSET

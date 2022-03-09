@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2021/11/05 00:58:05 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/09 13:53:08 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 /*
 ** -- INCLUDES --
 */
-# include <stdio.h> // to remove
+# include <stdio.h>  // to remove
 # include <unistd.h>
 # include <pthread.h>
 # include <sys/mman.h>
@@ -36,7 +36,6 @@
 # if 1
 #  define MALLOC_DEBUG
 # endif
-/* # define THREAD_SAFE */
 
 # define SYSCALL_ERR  (-1)
 
@@ -56,9 +55,11 @@
 
 
 # if defined(MALLOC_DEBUG)
-#  define LOG         printf(GREEN "%s:%d:" CLR " Here\n", __FILE__, __LINE__);
+#  define LOG             printf(GREEN "%s:%d:" CLR " Here\n", __FILE__, __LINE__);
+#  define print_blocks()  /*LOG*/; _print_blocks();
 # else
 #  define LOG
+#  define print_blocks()
 # endif /* defined(MALLOC_DEBUG) */
 
 
@@ -71,8 +72,8 @@
 	(((size) <= TINY) ? ZONE_TINY : (((size) <= SMALL) ? ZONE_SMALL : (size)));
 
 
-# define get_ptr_meta(ptr) ((block_t *)((void *)ptr - BLOCK_SIZE))
-# define get_ptr_user(ptr) ((void *)ptr + BLOCK_SIZE)
+# define get_ptr_meta(__ptr) ((block_t *)((void *)__ptr - BLOCK_SIZE))
+# define get_ptr_user(__ptr) ((void *)__ptr + BLOCK_SIZE)
 
 
 /* align() will help us aligning memory */
@@ -86,14 +87,8 @@
 
 
 /*
-** -- DATA STRUCTURES --
+** -- DATA STRUCTURES & TYPES --
 */
-// typedef struct	s_malloc
-// {
-// 	void				*_ptr;
-// 	pthread_mutex_t		_m;
-// }	malloc_t;
-
 
 /* Bigger integer size (128 bits or other) */
 # ifdef __SIZEOF_INT128__
@@ -103,15 +98,25 @@ typedef unsigned long long     wide_int_t;
 # endif
 
 
+enum
+{
+	MODE_ZONE_TINY,
+	MODE_ZONE_SMALL,
+	MODE_ZONE_LARGE
+};
+
+
 /*
 ** block list containing all allocated blocks:
+**  _zone   : zone type of the block
 **  _status : `BLOCK_IN_USE' if block is in use, `BLOCK_FREED' if free
 **  _size   : size of the block (also contains meta size)
 **  _next   : pointer to the next block in the list
 */
-typedef struct //__attribute__((packed))
+typedef struct // __attribute__((packed)) // error maker
 s_block
 {
+	unsigned char	_zone : 2;
 	unsigned char	_status : 2;
 	size_t			_size;
 	struct s_block	*_next;
@@ -127,7 +132,8 @@ void	*ft_memcpy(void *dst, const void *src, size_t n);
 
 block_t		**first_block(void);
 block_t		**last_block(void);
-void		print_blocks(void);
+void		_print_blocks(void);
 void		split_block(block_t *block, size_t size);
+void		join_blocks(void);
 
 #endif

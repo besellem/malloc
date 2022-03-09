@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2021/11/03 00:09:52 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/09 13:45:09 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ block_t	**last_block(void)
 	block = *first_block();
 	if (block)
 	{
-		for ( ; block->_next; block = block->_next);
+		for ( ; block->_next != NULL; block = block->_next);
 	}
 	return (&block);
 }
@@ -41,7 +41,6 @@ void	split_block(block_t *block, size_t size)
 	block->_next = (void *)block + size;
 	block->_next->_status = BLOCK_FREED;
 	block->_next->_size = MAX(old_size, size) - MIN(old_size, size);
-	// block->_next->_size = old_size - size;
 	block->_next->_next = old_block;
 }
 
@@ -64,29 +63,31 @@ block_t	*find_block(size_t size)
 {
 	block_t	*block = *first_block();
 
-	while (block)
+	for ( ; block; block = block->_next)
 	{
 		if (BLOCK_FREED == block->_status && block->_size >= size)
 		{
 			split_block(block, size);
 			return (block);
 		}
-		block = block->_next;
 	}
 	return (NULL);
 }
 
-void	print_blocks(void)
+void	_print_blocks(void)
 {
 	const block_t	*blk = *first_block();
 
-	printf(GREEN "\n..................BLOCKS.................." CLR "\n");
-	printf(CYAN "    addr    |    next    |   size   | used" CLR "\n");
+	printf(GREEN "..................BLOCKS.................." CLR "\n");
+	printf(CYAN "    addr    |    next    |   size   | used | zone" CLR "\n");
 
 	for ( ; blk; blk = blk->_next)
-		printf(" %11p  %11p  %9zu   %u\n", blk, blk->_next, blk->_size, blk->_status);
+	{
+		printf(" %11p  %11p  %9zu %4u %6u\n",
+			blk, blk->_next, blk->_size, blk->_status, blk->_zone);
+	}
 	
-	printf(GREEN "................BLOCKS.END................" CLR "\n\n");
+	printf(GREEN "................BLOCKS.END................" CLR "\n");
 }
 
 block_t	*create_block(size_t size)
@@ -101,6 +102,14 @@ block_t	*create_block(size_t size)
 #endif /* MALLOC_DEBUG */
 		return (NULL);
 	}
+
+	if (_siz == ZONE_TINY)
+		block->_zone = MODE_ZONE_TINY;
+	else if (_siz == ZONE_SMALL)
+		block->_zone = MODE_ZONE_SMALL;
+	else
+		block->_zone = MODE_ZONE_LARGE;
+
 	block->_size = _siz;
 	block->_next = NULL;
 	split_block(block, size);
@@ -108,7 +117,7 @@ block_t	*create_block(size_t size)
 	return (block);
 }
 
-void	*malloc(size_t size)
+static void	*_malloc_wrapper(size_t size)
 {
 	const size_t	_size = align(size + BLOCK_SIZE);
 	block_t			*block;
@@ -124,4 +133,20 @@ void	*malloc(size_t size)
 			return (NULL);
 	}
 	return (get_ptr_user(block));
+}
+
+void	*malloc(size_t size)
+{
+	void				*ptr;
+	pthread_mutex_t		_m;
+
+	pthread_mutex_init(&_m, NULL);
+	pthread_mutex_lock(&_m);
+
+	ptr = _malloc_wrapper(size);
+	
+	pthread_mutex_unlock(&_m);
+	pthread_mutex_destroy(&_m);
+
+	return (ptr);
 }

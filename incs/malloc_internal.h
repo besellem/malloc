@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/09 13:53:08 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/09 22:37:43 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@
 # define BLUE  "\e[1;34m"
 # define CLR   "\e[0m"
 
-# if 1
+# if 0
 #  define MALLOC_DEBUG
 # endif
 
@@ -43,12 +43,11 @@
 # define BLOCK_IN_USE 1
 # define BLOCK_SIZE   sizeof(block_t)
 
-# define TINY         ( 32UL + BLOCK_SIZE)
-# define SMALL        (256UL + BLOCK_SIZE)
+# define ZONE_TINY    (size_t)(getpagesize() * 4)
+# define ZONE_SMALL   (size_t)(getpagesize() * 32)
 
-# define ZONE_TINY    align( TINY * 100)
-# define ZONE_SMALL   align(SMALL * 100)
-
+# define TINY         ( ZONE_TINY / 128UL)
+# define SMALL        (ZONE_SMALL / 128UL)
 
 # define MIN(x, y)    ((x) < (y) ? (x) : (y))
 # define MAX(x, y)    ((x) > (y) ? (x) : (y))

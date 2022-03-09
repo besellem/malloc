@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/09 13:47:15 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/09 22:41:01 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,10 +89,6 @@ static void	_free_wrapper(void *ptr)
 		block->_status = BLOCK_FREED;
 		join_blocks();
 
-#ifdef MALLOC_DEBUG
-		printf(CYAN "%p" CLR ": pointer freed\n", ptr);
-#endif
-
 		if (*first_block() && NULL == (*first_block())->_next)
 		{
 
@@ -113,7 +109,7 @@ static void	_free_wrapper(void *ptr)
 
 void	free(void *ptr)
 {
-	pthread_mutex_t		_m;
+	pthread_mutex_t		_m;// = PTHREAD_MUTEX_INITIALIZER;
 
 	pthread_mutex_init(&_m, NULL);
 	pthread_mutex_lock(&_m);

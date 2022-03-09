@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/09 13:45:09 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/09 22:41:09 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ static void	*_malloc_wrapper(size_t size)
 void	*malloc(size_t size)
 {
 	void				*ptr;
-	pthread_mutex_t		_m;
+	pthread_mutex_t		_m;// = PTHREAD_MUTEX_INITIALIZER;
 
 	pthread_mutex_init(&_m, NULL);
 	pthread_mutex_lock(&_m);

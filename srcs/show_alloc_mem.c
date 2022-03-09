@@ -6,14 +6,14 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 13:46:32 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/09 13:57:24 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/09 22:33:01 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
 #include <stdbool.h>
 
-void     show_alloc_mem(void)
+static void	_show_alloc_mem_wrapper(void)
 {
 	block_t		*block = *first_block();
 	int			zone;
@@ -41,4 +41,17 @@ void     show_alloc_mem(void)
 		printf("%p - %p : %zu bytes\n",
 			block, (void *)block + block->_size, block->_size);
 	}
+}
+
+void     show_alloc_mem(void)
+{
+	pthread_mutex_t		_m;
+
+	pthread_mutex_init(&_m, NULL);
+	pthread_mutex_lock(&_m);
+
+	_show_alloc_mem_wrapper();
+
+	pthread_mutex_unlock(&_m);
+	pthread_mutex_destroy(&_m);
 }

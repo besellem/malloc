@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/21 16:29:37 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/21 16:33:36 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,8 +73,8 @@
 	(((size) <= TINY) ? ZONE_TINY : (((size) <= SMALL) ? ZONE_SMALL : (size)));
 
 
-# define get_ptr_meta(__ptr) ((block_t *)((void *)__ptr - BLOCK_SIZE))
-# define get_ptr_user(__ptr) ((void *)__ptr + BLOCK_SIZE)
+# define get_ptr_meta(__ptr) ((block_t *)((void *)(__ptr) - BLOCK_SIZE))
+# define get_ptr_user(__ptr) ((void *)(__ptr) + BLOCK_SIZE)
 
 
 /* align() will help us aligning memory */

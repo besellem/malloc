@@ -6,30 +6,11 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/21 16:06:07 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/21 16:27:47 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
-
-
-#ifdef MALLOC_DEBUG
-
-#define print_double_free(__debug)                                                       \
-	dprintf(STDERR_FILENO,                                                               \
-			BLUE "Warning:" CLR " Attempting double free on address %p\n", __debug.ptr); \
-	dprintf(STDERR_FILENO,                                                               \
-			"%9.0d%s:%d: " GREEN "%s" CLR " (addr %p)\n",                                \
-			0, __debug.file, __debug.line, __debug.ptr_name, __debug.ptr);
-
-#else
-
-#define print_double_free(__debug)                                                   \
-	dprintf(STDERR_FILENO,                                                           \
-		BLUE "Warning:" CLR " Attempting double free on address %p\n", __debug.ptr);
-
-#endif
-
 
 /* join all contiguous freed blocks */
 void	join_blocks(void)
@@ -64,17 +45,21 @@ static void	_free_wrapper(void *ptr, const struct s_debug_data debug)
 	if (NULL == ptr)
 		return ;
 
-	/* there's no allocated blocks left, must be a double free since it's not NULL */
-	if (!*first_block())
-	{
-		print_double_free(debug);
-		return ;
-	}
-
+	/*
+	** if there's no allocated blocks left or if the pointer has been freed,
+	** must be a double free since the pointer is not NULL
+	*/
 	block = get_ptr_meta(ptr);
-	if (BLOCK_FREED == block->_status)
+	if (!*first_block() || BLOCK_FREED == block->_status)
 	{
-		print_double_free(debug);
+		dprintf(STDERR_FILENO, BLUE "Warning:" CLR " Attempting double free on address %p\n",
+			debug.ptr);
+
+#ifdef MALLOC_DEBUG
+		dprintf(STDERR_FILENO, "%9.0d%s:%d: " GREEN "%s" CLR " (addr %p)\n",
+			0, debug.file, debug.line, debug.ptr_name, debug.ptr);
+#endif /* MALLOC_DEBUG */
+
 		return ;
 	}
 

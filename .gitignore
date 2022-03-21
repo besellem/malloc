@@ -3,3 +3,4 @@
 malloc_test
 malloc_test.dSYM
 *.so
+*.DS_Store

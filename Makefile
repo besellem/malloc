@@ -6,7 +6,7 @@
 #    By: besellem <besellem@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/25 01:10:15 by besellem          #+#    #+#              #
-#    Updated: 2022/03/09 20:59:35 by besellem         ###   ########.fr        #
+#    Updated: 2022/03/21 15:57:09 by besellem         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,6 +34,7 @@ SRCS	:=	calloc.c \
 			realloc.c \
 			reallocf.c \
 			show_alloc_mem.c \
+			show_memory_leaks.c \
 			utils.c
 
 ## Objects

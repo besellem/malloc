@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/09 22:37:43 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/21 16:15:48 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <sys/mman.h>
 # include <sys/resource.h>
 # include <stddef.h>
+# include <stdbool.h>
 
 
 /*
@@ -33,7 +34,7 @@
 # define BLUE  "\e[1;34m"
 # define CLR   "\e[0m"
 
-# if 0
+# if 1
 #  define MALLOC_DEBUG
 # endif
 
@@ -53,6 +54,7 @@
 # define MAX(x, y)    ((x) > (y) ? (x) : (y))
 
 
+// TO REMOVE
 # if defined(MALLOC_DEBUG)
 #  define LOG             printf(GREEN "%s:%d:" CLR " Here\n", __FILE__, __LINE__);
 #  define print_blocks()  /*LOG*/; _print_blocks();
@@ -105,6 +107,15 @@ enum
 };
 
 
+struct s_debug_data
+{
+	void	*ptr;
+	char	*ptr_name;
+	char	*file;
+	int		line;
+};
+
+
 /*
 ** block list containing all allocated blocks:
 **  _zone   : zone type of the block
@@ -133,6 +144,15 @@ block_t		**first_block(void);
 block_t		**last_block(void);
 void		_print_blocks(void);
 void		split_block(block_t *block, size_t size);
+
+/* join all contiguous freed blocks */
 void		join_blocks(void);
+
+
+/*
+** a wrapper of free() to print debug info
+** working with MALLOC_DEBUG macro
+*/
+void		__free(void *ptr, const struct s_debug_data debug);
 
 #endif

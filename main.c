@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:19:54 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/09 13:47:59 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/21 15:54:27 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,56 +100,68 @@ void	*ft_print_memory(void *addr, unsigned int size)
 
 
 
-int	main(void)
+// int	main(void)
+// {
+// 	struct rlimit			lim;
+// 	__unused int			ret = getrlimit(RLIMIT_MEMLOCK, &lim);
+// 	__unused const int		pagesize = getpagesize();
+
+// 	printf("pagesize:   [%8d]\n", pagesize);
+// 	printf("BLOCK_SIZE: [%8zu]\n", BLOCK_SIZE);
+// 	printf("ZONE_TINY:  [%8zu]\n", ZONE_TINY);
+// 	printf("ZONE_SMALL: [%8zu]\n", ZONE_SMALL);
+	
+// 	printf("ret: %d\n", ret);
+// 	printf("cur: [%20llu]  max: [%20llu]\n", lim.rlim_cur, lim.rlim_max);
+// 	printf("cur: [%20llx]  max: [%20llx]\n", lim.rlim_cur, lim.rlim_max);
+
+// 	const char			str[] = "Hello World!";
+// 	const size_t		size = sizeof(str);
+	
+// 	__unused void		*ptr = malloc(size);
+// 	__unused void		*ptr2 = malloc(size);
+// 	__unused void		*ptr3 = malloc(16000);
+// 	__unused void		*ptr4 = malloc(1000);
+
+// 	if (NULL == ptr)
+// 	{
+// 		dprintf(STDERR_FILENO, "Error: malloc(%zu)\n", size);
+// 		return (1);
+// 	}
+
+// 	ft_memcpy(ptr, str, size);
+// 	ft_print_memory(get_ptr_meta(ptr), get_ptr_meta(ptr)->_size - BLOCK_SIZE);
+
+// 	ptr = realloc(ptr, 1);
+
+// 	print_blocks();
+
+// 	ft_print_memory(ptr, get_ptr_meta(ptr)->_size);
+
+// 	// ft_memcpy(ptr2, str, size);
+	
+// 	show_alloc_mem();
+
+// 	// ft_print_memory(*first_block(), (ptrdiff_t)*last_block() - (ptrdiff_t)*first_block());
+	
+// 	free(ptr);
+// 	free(ptr2);
+// 	free(ptr3);
+// 	free(ptr4);
+	
+// 	show_memory_leaks();
+
+// 	return (0);
+// }
+
+
+int	main(__unused int ac, __unused char **av)
 {
-	struct rlimit			lim;
-	__unused int			ret = getrlimit(RLIMIT_MEMLOCK, &lim);
-	__unused const int		pagesize = getpagesize();
+	__unused void	*tester_variable = malloc(sizeof(int));
 
-	printf("pagesize:   [%8d]\n", pagesize);
-	printf("BLOCK_SIZE: [%8zu]\n", BLOCK_SIZE);
-	printf("ZONE_TINY:  [%8zu]\n", ZONE_TINY);
-	printf("ZONE_SMALL: [%8zu]\n", ZONE_SMALL);
-	
-	printf("ret: %d\n", ret);
-	printf("cur: [%20llu]  max: [%20llu]\n", lim.rlim_cur, lim.rlim_max);
-	printf("cur: [%20llx]  max: [%20llx]\n", lim.rlim_cur, lim.rlim_max);
-
-	const char			str[] = "Hello World!";
-	const size_t		size = sizeof(str);
-	
-	__unused void		*ptr = malloc(size);
-	__unused void		*ptr2 = malloc(size);
-	__unused void		*ptr3 = malloc(16000);
-	__unused void		*ptr4 = malloc(1000);
-
-	if (NULL == ptr)
-	{
-		dprintf(STDERR_FILENO, "Error: malloc(%zu)\n", size);
-		return (1);
-	}
-
-	ft_memcpy(ptr, str, size);
-	ft_print_memory(get_ptr_meta(ptr), get_ptr_meta(ptr)->_size - BLOCK_SIZE);
-
-	ptr = realloc(ptr, 1);
-
-	print_blocks();
-
-	ft_print_memory(ptr, get_ptr_meta(ptr)->_size);
-
-	// ft_memcpy(ptr2, str, size);
-	
-	show_alloc_mem();
-
-	// ft_print_memory(*first_block(), (ptrdiff_t)*last_block() - (ptrdiff_t)*first_block());
-	
-	free(ptr);
-	free(ptr2);
-	free(ptr3);
-	free(ptr4);
-	
-	show_memory_leaks();
-
+	free(tester_variable);
+	free(tester_variable);
+	show_memory_leaks(true);
+	show_memory_leaks(false);
 	return (0);
 }

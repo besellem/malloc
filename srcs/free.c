@@ -6,40 +6,32 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/09 22:41:01 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/21 16:06:07 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
 
-void	show_memory_leaks(void)
-{
-	const block_t	*block = *first_block();
-	size_t			sanitized_leaks = 0;
-	size_t			real_leaks = 0;
 
-	for ( ; block != NULL; block = block->_next)
-	{
-		if (BLOCK_IN_USE == block->_status)
-		{
-			printf(RED "* mem leak" CLR " -> %11p (%zu bytes)\n",
-				block, block->_size - BLOCK_SIZE);
-			sanitized_leaks += block->_size - BLOCK_SIZE;
-			real_leaks += block->_size;
-			// free(get_ptr_user(block));
-		}
-	}
+#ifdef MALLOC_DEBUG
 
-	if (0 == real_leaks)
-		printf(GREEN "*** No memory leaks ***" CLR "\n");
-	else
-	{
-		printf(RED "  Total memory leaked" CLR "  -> %zu bytes\n", sanitized_leaks);
-		printf(RED "  Total used by mmap()" CLR " -> %zu bytes\n", real_leaks);
-	}
-}
+#define print_double_free(__debug)                                                       \
+	dprintf(STDERR_FILENO,                                                               \
+			BLUE "Warning:" CLR " Attempting double free on address %p\n", __debug.ptr); \
+	dprintf(STDERR_FILENO,                                                               \
+			"%9.0d%s:%d: " GREEN "%s" CLR " (addr %p)\n",                                \
+			0, __debug.file, __debug.line, __debug.ptr_name, __debug.ptr);
 
-/* join all contiguous blocks freed */
+#else
+
+#define print_double_free(__debug)                                                   \
+	dprintf(STDERR_FILENO,                                                           \
+		BLUE "Warning:" CLR " Attempting double free on address %p\n", __debug.ptr);
+
+#endif
+
+
+/* join all contiguous freed blocks */
 void	join_blocks(void)
 {
 	block_t	*block = *first_block();
@@ -65,57 +57,70 @@ void	join_blocks(void)
 	}
 }
 
-static void	_free_wrapper(void *ptr)
+static void	_free_wrapper(void *ptr, const struct s_debug_data debug)
 {
 	block_t	*block;
-	
+
 	if (NULL == ptr)
 		return ;
 
-	/* there's no allocated blocks left, must be a double free */
+	/* there's no allocated blocks left, must be a double free since it's not NULL */
 	if (!*first_block())
 	{
-		dprintf(STDERR_FILENO, BLUE "Warning:" CLR " Attempting double free on address %p\n", ptr);
+		print_double_free(debug);
 		return ;
 	}
-	
+
 	block = get_ptr_meta(ptr);
 	if (BLOCK_FREED == block->_status)
 	{
-		dprintf(STDERR_FILENO, BLUE "Warning:" CLR " Attempting double free on address %p\n", ptr);
+		print_double_free(debug);
+		return ;
 	}
-	else
-	{
-		block->_status = BLOCK_FREED;
-		join_blocks();
 
-		if (*first_block() && NULL == (*first_block())->_next)
-		{
+	block->_status = BLOCK_FREED;
+	join_blocks();
+
+	if (*first_block() && NULL == (*first_block())->_next)
+	{
 
 #ifndef MALLOC_DEBUG
-			munmap(*first_block(), (*first_block())->_size);
+		munmap(*first_block(), (*first_block())->_size);
 #else /* MALLOC_DEBUG */
-			if (SYSCALL_ERR == munmap(*first_block(), (*first_block())->_size))
-			{
-				dprintf(STDERR_FILENO, RED "Error: " CLR "munmap(%p, %zu)\n",
-					*first_block(), (*first_block())->_size);
-			}
+		if (SYSCALL_ERR == munmap(*first_block(), (*first_block())->_size))
+		{
+			dprintf(STDERR_FILENO, RED "Error: " CLR "munmap(%p, %zu)\n",
+				*first_block(), (*first_block())->_size);
+		}
 #endif /* !MALLOC_DEBUG */
 
-			*first_block() = NULL;
-		}
+		*first_block() = NULL;
 	}
 }
 
-void	free(void *ptr)
+/* a wrapper to handle threads and debug infos */
+void	__free(void *ptr, const struct s_debug_data debug)
 {
 	pthread_mutex_t		_m;// = PTHREAD_MUTEX_INITIALIZER;
 
 	pthread_mutex_init(&_m, NULL);
 	pthread_mutex_lock(&_m);
 
-	_free_wrapper(ptr);
+	_free_wrapper(ptr, debug);
 
 	pthread_mutex_unlock(&_m);
 	pthread_mutex_destroy(&_m);
 }
+
+/*
+** free() is defined in two forms :
+** - if MALLOC_DEBUG is defined, it's a macro (defined in malloc.h)
+**   that calls the wrapper above
+** - if not, it's a function (below)
+*/
+#ifndef MALLOC_DEBUG
+void	free(void *ptr)
+{
+	__free(ptr, (const struct s_debug_data){ ptr, NULL, NULL, 0 });
+}
+#endif /* MALLOC_DEBUG */

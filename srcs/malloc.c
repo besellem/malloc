@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/09 22:41:09 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/21 16:16:29 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,23 @@ block_t	**last_block(void)
 		for ( ; block->_next != NULL; block = block->_next);
 	}
 	return (&block);
+}
+
+// TO REMOVE
+void	_print_blocks(void)
+{
+	const block_t	*blk = *first_block();
+
+	printf(GREEN "..................BLOCKS.................." CLR "\n");
+	printf(CYAN "    addr    |    next    |   size   | used | zone" CLR "\n");
+
+	for ( ; blk; blk = blk->_next)
+	{
+		printf(" %11p  %11p  %9zu %4u %6u\n",
+			blk, blk->_next, blk->_size, blk->_status, blk->_zone);
+	}
+	
+	printf(GREEN "................BLOCKS.END................" CLR "\n");
 }
 
 void	split_block(block_t *block, size_t size)
@@ -72,22 +89,6 @@ block_t	*find_block(size_t size)
 		}
 	}
 	return (NULL);
-}
-
-void	_print_blocks(void)
-{
-	const block_t	*blk = *first_block();
-
-	printf(GREEN "..................BLOCKS.................." CLR "\n");
-	printf(CYAN "    addr    |    next    |   size   | used | zone" CLR "\n");
-
-	for ( ; blk; blk = blk->_next)
-	{
-		printf(" %11p  %11p  %9zu %4u %6u\n",
-			blk, blk->_next, blk->_size, blk->_status, blk->_zone);
-	}
-	
-	printf(GREEN "................BLOCKS.END................" CLR "\n");
 }
 
 block_t	*create_block(size_t size)

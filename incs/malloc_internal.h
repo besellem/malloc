@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/21 16:33:36 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/29 16:47:39 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@
 # define BLUE  "\e[1;34m"
 # define CLR   "\e[0m"
 
-# if 1
+# if 0
 #  define MALLOC_DEBUG
 # endif
 
@@ -44,20 +44,21 @@
 # define BLOCK_IN_USE 1
 # define BLOCK_SIZE   sizeof(block_t)
 
-# define ZONE_TINY    (size_t)(getpagesize() * 4)
-# define ZONE_SMALL   (size_t)(getpagesize() * 32)
+# define ZONE_TINY    ((size_t)(getpagesize() *  4))
+# define ZONE_SMALL   ((size_t)(getpagesize() * 32))
 
 # define TINY         ( ZONE_TINY / 128UL)
 # define SMALL        (ZONE_SMALL / 128UL)
 
 # define MIN(x, y)    ((x) < (y) ? (x) : (y))
 # define MAX(x, y)    ((x) > (y) ? (x) : (y))
+# define DIFF(x, y)   (MAX(x, y) - MIN(x, y))
 
 
 // TO REMOVE
 # if defined(MALLOC_DEBUG)
-#  define LOG             printf(GREEN "%s:%d:" CLR " Here\n", __FILE__, __LINE__);
-#  define print_blocks()  /*LOG*/; _print_blocks();
+#  define LOG             printf(BLUE "%s:%d:" CLR " Here\n", __FILE__, __LINE__);
+#  define print_blocks()  LOG; _print_blocks_wrapper()
 # else
 #  define LOG
 #  define print_blocks()
@@ -68,13 +69,24 @@
 ** -- FUNCTION-LIKE MACROS --
 */
 
-/* define which zone size is best fitted to allocate */
+/*
+** Define which zone size is best fitted to allocate.
+** We add BLOCK_SIZE to the size to be sure that the zone size will always be
+** greater than the size requested.
+*/
 # define define_block_size(size) \
-	(((size) <= TINY) ? ZONE_TINY : (((size) <= SMALL) ? ZONE_SMALL : (size)));
+	(((size) + BLOCK_SIZE <= ZONE_TINY) ? ZONE_TINY : (((size) + BLOCK_SIZE <= ZONE_SMALL) ? ZONE_SMALL : (size)))
 
 
-# define get_ptr_meta(__ptr) ((block_t *)((void *)(__ptr) - BLOCK_SIZE))
-# define get_ptr_user(__ptr) ((void *)(__ptr) + BLOCK_SIZE)
+/*
+** need two blocks: one for the actual data and the second for the footer
+** (is the bond between this zone and the next one)
+** (BLOCK_SIZE << 1) is actually an optimized version of (BLOCK_SIZE * 2)
+*/
+# define get_sanitized_size(__size)  align(size + (BLOCK_SIZE << 1))
+
+# define get_ptr_meta(__ptr)         ((block_t *)((void *)(__ptr) - BLOCK_SIZE))
+# define get_ptr_user(__ptr)         ((void *)(__ptr) + BLOCK_SIZE)
 
 
 /* align() will help us aligning memory */
@@ -99,14 +111,6 @@ typedef unsigned long long     wide_int_t;
 # endif
 
 
-enum
-{
-	MODE_ZONE_TINY,
-	MODE_ZONE_SMALL,
-	MODE_ZONE_LARGE
-};
-
-
 struct s_debug_data
 {
 	void	*ptr;
@@ -116,9 +120,17 @@ struct s_debug_data
 };
 
 
+enum
+{
+	MASK_ZONE_TINY,
+	MASK_ZONE_SMALL,
+	MASK_ZONE_LARGE
+};
+
+
 /*
 ** block list containing all allocated blocks:
-**  _zone   : zone type of the block
+**  _zone   : zone type of the block (uses MASK_ZONE_* constants)
 **  _status : `BLOCK_IN_USE' if block is in use, `BLOCK_FREED' if free
 **  _size   : size of the block (also contains meta size)
 **  _next   : pointer to the next block in the list
@@ -136,13 +148,12 @@ s_block
 /*
 ** -- PROTOTYPES --
 */
-void	*ft_print_memory(void *addr, unsigned int size);
-void	*ft_memset(void *b, int c, size_t len);
-void	*ft_memcpy(void *dst, const void *src, size_t n);
+void		*ft_memset(void *b, int c, size_t len);
+void		*ft_memcpy(void *dst, const void *src, size_t n);
 
 block_t		**first_block(void);
-block_t		**last_block(void);
-void		_print_blocks(void);
+block_t		*last_block(void);
+void		_print_blocks_wrapper(void);
 void		split_block(block_t *block, size_t size);
 
 /* join all contiguous freed blocks */

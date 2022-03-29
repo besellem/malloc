@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/03 00:00:21 by besellem          #+#    #+#             */
-/*   Updated: 2021/11/03 00:04:05 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/28 14:22:23 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 /*
 ** MEMSET
 */
-static wide_int_t	get_char_aligned(unsigned char c, size_t l_size)
+static wide_int_t	get_aligned_char(unsigned char c, size_t l_size)
 {
 	const wide_int_t	c_ = (wide_int_t)c;
 	wide_int_t			c_ret;
@@ -40,7 +40,7 @@ void	*ft_memset(void *b, int c, size_t len)
 	if (0 == c)
 		c_long_aligned = 0;
 	else
-		c_long_aligned = get_char_aligned(c, l_size);
+		c_long_aligned = get_aligned_char(c, l_size);
 	l_ptr = (wide_int_t *)b;
 	while (len >= l_size)
 	{

@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 15:44:34 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/21 15:49:50 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/28 14:12:15 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,11 @@
 
 static void	_free_all_blocks(void)
 {
-	block_t	*block;
+	block_t	*block = *first_block();
 
-	for (block = *first_block(); block != NULL; )
+	while (block)
 	{
-		if (BLOCK_FREED != block->_status)
+		if (BLOCK_FREED != block->_status && block->_size > 0)
 		{
 			free(get_ptr_user(block));
 			block = *first_block();
@@ -28,7 +28,7 @@ static void	_free_all_blocks(void)
 	}
 }
 
-void	show_memory_leaks(bool free_all)
+static void	_show_memory_leaks_wrapper(bool free_all)
 {
 	const block_t	*block = *first_block();
 	size_t			sanitized_leaks = 0;
@@ -55,4 +55,17 @@ void	show_memory_leaks(bool free_all)
 		printf(RED "  Total memory leaked" CLR "  -> %zu bytes\n", sanitized_leaks);
 		printf(RED "  Total used by mmap()" CLR " -> %zu bytes\n", real_leaks);
 	}
+}
+
+void	show_memory_leaks(bool free_all)
+{
+	pthread_mutex_t		_m;
+
+	pthread_mutex_init(&_m, NULL);
+	pthread_mutex_lock(&_m);
+
+	_show_memory_leaks_wrapper(free_all);
+
+	pthread_mutex_unlock(&_m);
+	pthread_mutex_destroy(&_m);
 }

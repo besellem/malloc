@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 13:46:32 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/09 22:33:01 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/29 16:48:55 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,19 +27,18 @@ static void	_show_alloc_mem_wrapper(void)
 	{
 		if (zone_changed)
 		{
-			if (block->_zone == MODE_ZONE_TINY)
+			if (block->_zone == MASK_ZONE_TINY)
 				printf("TINY: %p\n", block);
-			else if (block->_zone == MODE_ZONE_SMALL)
+			else if (block->_zone == MASK_ZONE_SMALL)
 				printf("SMALL: %p\n", block);
-			else if (block->_zone == MODE_ZONE_LARGE)
+			else if (block->_zone == MASK_ZONE_LARGE)
 				printf("LARGE: %p\n", block);
 			zone_changed = false;
 		}
 		zone_changed = (zone != block->_zone);
 		zone = block->_zone;
-
-		printf("%p - %p : %zu bytes\n",
-			block, (void *)block + block->_size, block->_size);
+		// if (block->_size > 0)
+		printf("  %p - %p : %zu bytes\n", block, block->_next, block->_size);
 	}
 }
 

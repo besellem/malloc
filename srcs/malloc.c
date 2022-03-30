@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/29 16:47:17 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/30 21:42:33 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,10 @@ static void	_init_block(block_t *block, size_t zone_size)
 static block_t	*create_block(size_t size)
 {
 	const size_t	zone_size = define_block_size(size);
-	block_t			*block = mmap(NULL, zone_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	block_t			*block = mmap(last_block(), zone_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+	printf("size:      %zu\n", size);
+	printf("zone_size: %zu\n", zone_size);
 
 	if (MAP_FAILED == block)
 	{
@@ -128,7 +131,7 @@ static block_t	*create_block(size_t size)
 		return (NULL);
 	}
 
-	_init_block(block, size);
+	_init_block(block, zone_size);
 	split_block(block, size);
 	add_block(block);
 	return (block);

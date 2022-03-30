@@ -6,15 +6,26 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 13:46:32 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/29 16:48:55 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/30 20:40:31 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
 #include <stdbool.h>
 
+/*
+* TODO:
+* - the address of the zone must be the first non-zero block of the zone
+* - the zones and blocks must be sorted by address
+*/
+
 static void	_show_alloc_mem_wrapper(void)
 {
+	static const char	*_zone_name[] = {
+		"TINY",
+		"SMALL",
+		"LARGE"
+	};
 	block_t		*block = *first_block();
 	int			zone;
 	bool		zone_changed = true;
@@ -22,23 +33,23 @@ static void	_show_alloc_mem_wrapper(void)
 	if (!block)
 		return ;
 
-	zone = block->_zone;
+	/*
+	** trick to set `zone_changed' to true the first time so it prints the first zone.
+	** the first condition will systematically be true the first time
+	*/
+	zone = !block->_zone;
 	for ( ; block->_next; block = block->_next)
 	{
+		zone_changed = (zone != block->_zone) || (0 == block->_size) || \
+						DIFF((size_t)block, (size_t)block->_next) != block->_size;
 		if (zone_changed)
 		{
-			if (block->_zone == MASK_ZONE_TINY)
-				printf("TINY: %p\n", block);
-			else if (block->_zone == MASK_ZONE_SMALL)
-				printf("SMALL: %p\n", block);
-			else if (block->_zone == MASK_ZONE_LARGE)
-				printf("LARGE: %p\n", block);
+			printf("%s: %p\n", _zone_name[block->_zone], block);
 			zone_changed = false;
 		}
-		zone_changed = (zone != block->_zone);
 		zone = block->_zone;
 		// if (block->_size > 0)
-		printf("  %p - %p : %zu bytes\n", block, block->_next, block->_size);
+			printf("  %p - %p : %zu bytes\n", block, block->_next, block->_size);
 	}
 }
 

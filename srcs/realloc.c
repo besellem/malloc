@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:49 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/29 16:45:51 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/30 13:11:51 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ static void	*_realloc_wrapper(void *ptr, size_t size)
 	}
 	else
 	{
-		LOG
 		new_ptr = malloc(size);
 		if (!new_ptr)
 			return (NULL);

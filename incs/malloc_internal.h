@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/29 16:47:39 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/30 21:44:40 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@
 # define BLUE  "\e[1;34m"
 # define CLR   "\e[0m"
 
-# if 0
+# if 1
 #  define MALLOC_DEBUG
 # endif
 
@@ -74,8 +74,10 @@
 ** We add BLOCK_SIZE to the size to be sure that the zone size will always be
 ** greater than the size requested.
 */
-# define define_block_size(size) \
-	(((size) + BLOCK_SIZE <= ZONE_TINY) ? ZONE_TINY : (((size) + BLOCK_SIZE <= ZONE_SMALL) ? ZONE_SMALL : (size)))
+# define define_block_size(__size) \
+	(((__size) + BLOCK_SIZE <= ZONE_TINY) ? ZONE_TINY : \
+		(((__size) + BLOCK_SIZE <= ZONE_SMALL) ? ZONE_SMALL : \
+			(__size + BLOCK_SIZE)))
 
 
 /*
@@ -83,7 +85,7 @@
 ** (is the bond between this zone and the next one)
 ** (BLOCK_SIZE << 1) is actually an optimized version of (BLOCK_SIZE * 2)
 */
-# define get_sanitized_size(__size)  align(size + (BLOCK_SIZE << 1))
+# define get_sanitized_size(__size)  align(__size + (BLOCK_SIZE << 1))
 
 # define get_ptr_meta(__ptr)         ((block_t *)((void *)(__ptr) - BLOCK_SIZE))
 # define get_ptr_user(__ptr)         ((void *)(__ptr) + BLOCK_SIZE)
@@ -111,7 +113,7 @@ typedef unsigned long long     wide_int_t;
 # endif
 
 
-struct s_debug_data
+struct	s_debug_data
 {
 	void	*ptr;
 	char	*ptr_name;
@@ -135,7 +137,7 @@ enum
 **  _size   : size of the block (also contains meta size)
 **  _next   : pointer to the next block in the list
 */
-typedef struct // __attribute__((packed)) // error maker
+typedef	struct // __attribute__((packed)) // error maker
 s_block
 {
 	unsigned char	_zone : 2;

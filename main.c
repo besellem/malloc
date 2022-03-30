@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:19:54 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/29 16:49:37 by besellem         ###   ########.fr       */
+/*   Updated: 2022/03/30 22:06:57 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,15 +31,23 @@ int		main(void)
 	const char			str[] = "Hello World!";
 	const size_t		size = sizeof(str);
 	
-	__unused void		*ptr = malloc(65500);
+	__unused void		*ptr = malloc(65490);
 	print_blocks();
+	
 	__unused void		*ptr2 = malloc(65449);
 	print_blocks();
 
 	// free(ptr);
 	__unused void		*ptr3 = malloc(16000);
 	print_blocks();
+	
 	__unused void		*ptr4 = malloc(524264);
+	print_blocks();
+
+	__unused void		*ptr5 = malloc(524210);
+	print_blocks();
+
+	__unused void		*ptr6 = malloc(sizeof(char));
 	print_blocks();
 
 	if (NULL == ptr)
@@ -62,12 +70,15 @@ int		main(void)
 
 
 	show_alloc_mem();
+	print_blocks();
 
 	free(ptr);
-	// free(ptr2);
-	// free(ptr2);
-	// free(ptr3);
-	// free(ptr4);
+	free(ptr2);
+	free(ptr2);
+	free(ptr3);
+	free(ptr4);
+	free(ptr5);
+	free(ptr6);
 	show_memory_leaks(true);
 
 	return (0);

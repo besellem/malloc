@@ -12,6 +12,7 @@
 		"unordered_map": "c",
 		"vector": "c",
 		"iterator": "c",
-		"utility": "c"
+		"utility": "c",
+		"variant": "c"
 	}
 }

@@ -6,10 +6,11 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 15:44:34 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/28 14:12:15 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/08 16:49:45 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "malloc_internal.h"
 #include "malloc.h"
 
 static void	_free_all_blocks(void)

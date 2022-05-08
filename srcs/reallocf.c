@@ -6,10 +6,11 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:32:39 by besellem          #+#    #+#             */
-/*   Updated: 2021/10/18 10:34:09 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/08 15:33:31 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "malloc_internal.h"
 #include "malloc.h"
 
 void	*reallocf(void *ptr, size_t size)

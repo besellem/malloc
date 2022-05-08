@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/30 22:10:38 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/08 16:50:35 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@
 # define BLUE  "\e[1;34m"
 # define CLR   "\e[0m"
 
-# if 0
+# if 1
 #  define MALLOC_DEBUG
 # endif
 

@@ -6,10 +6,11 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/30 22:09:42 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/08 16:52:50 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "malloc_internal.h"
 #include "malloc.h"
 
 block_t	**first_block(void)
@@ -23,24 +24,24 @@ block_t	*last_block(void)
 {
 	block_t	*block = *first_block();
 
-	if (block)
-	{
-		for ( ; block->_next != NULL; block = block->_next);
-	}
+	while (block && block->_next != NULL)
+		block = block->_next;
 	return (block);
 }
 
 // TO REMOVE
 void	_print_blocks_wrapper(void)
 {
-	const block_t	*blk = *first_block();
+	block_t	*blk = *first_block();
 
-	printf(GREEN "......................BLOCKS........................" CLR "\n");
-	printf(CYAN "    addr    |    next    |   size   | used |  zone  " CLR "\n");
+	printf("ptr: %p\n", blk);
+
+	printf(GREEN "..........................BLOCKS............................" CLR "\n");
+	printf(CYAN "      addr      |      next      |   size   | used |  zone  " CLR "\n");
 
 	for ( ; blk; blk = blk->_next)
 	{
-		printf(" %11p  %11p  %9zu %4u ",
+		printf(" %15p  %15p  %9zu %4u ",
 			blk, blk->_next, blk->_size, blk->_status);
 		
 		if (blk->_zone == MASK_ZONE_TINY)
@@ -50,9 +51,9 @@ void	_print_blocks_wrapper(void)
 		else if (blk->_zone == MASK_ZONE_LARGE)
 			printf("%9s\n", "large");
 		else
-			printf("%9s\n", "unknown");
+			printf(RED"%9s"CLR"\n", "unknown");
 	}
-	printf(GREEN "....................BLOCKS.END......................" CLR "\n");
+	printf(GREEN "........................BLOCKS.END.........................." CLR "\n");
 }
 // END - TO REMOVE
 
@@ -118,7 +119,7 @@ static void	_init_block(block_t *block, size_t zone_size)
 static block_t	*create_block(size_t size)
 {
 	const size_t	zone_size = define_block_size(size);
-	block_t			*block = mmap(last_block(), zone_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	block_t			*block = mmap(NULL, zone_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
 	if (MAP_FAILED == block)
 	{

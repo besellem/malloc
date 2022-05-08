@@ -6,12 +6,12 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 13:46:32 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/30 20:40:31 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/08 16:49:45 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "malloc_internal.h"
 #include "malloc.h"
-#include <stdbool.h>
 
 /*
 * TODO:

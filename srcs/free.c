@@ -6,10 +6,11 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/29 16:29:10 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/08 16:49:45 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "malloc_internal.h"
 #include "malloc.h"
 
 /* join all contiguous freed blocks */
@@ -47,7 +48,7 @@ void	join_blocks(void)
 	}
 }
 
-static
+// static
 void	_deallocate_empty_zones(void)
 {
 	block_t		*block = *first_block();

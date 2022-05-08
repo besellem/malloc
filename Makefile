@@ -6,7 +6,7 @@
 #    By: besellem <besellem@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/25 01:10:15 by besellem          #+#    #+#              #
-#    Updated: 2022/03/30 22:10:53 by besellem         ###   ########.fr        #
+#    Updated: 2022/05/08 16:47:00 by besellem         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,7 +15,7 @@ ifeq ($(HOSTTYPE),)
 endif
 
 NAME		:=	libft_malloc_$(HOSTTYPE).so
-NAME_LINK	:=	libft_malloc.so
+NAME_SLINK	:=	libft_malloc.so
 EXECUTABLE	:=	malloc_test
 
 ## Main directories
@@ -43,8 +43,8 @@ OBJS 		:=	$(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 ## Commands
 CC			:=	clang
-CFLAGS		:=	-Wall -Wextra -Werror #-g3 -fsanitize=address #-O1
-LIBC		:=	ar rc
+CFLAGS		:=	-Wall -Wextra -Werror -fPIC -g #-g3 -fsanitize=address #-O1
+LIBC		:=	$(CC) -shared -o
 RM			:=	rm -f
 
 
@@ -61,11 +61,12 @@ CYAN 		:= \033[1;36m
 $(NAME):	$(OBJS)
 			@echo "Creating $(RED)$@ $(CLR)..."
 			@$(LIBC) $(NAME) $(OBJS)
-			@ln -s $(NAME) $(NAME_LINK) 2>/dev/null
-
-			@$(CC) $(CFLAGS) $(INCS) main.c $(NAME_LINK) -o $(EXECUTABLE)
-
+			@$(RM) $(NAME_SLINK)
+			@ln -s $(NAME) $(NAME_SLINK) 2>/dev/null
 			@echo "$(GREEN)Compilation $(YELLOW)of $(RED)$@ $(BLUE)done$(CLR)"
+
+$(EXECUTABLE):	main.c | $(NAME)
+			@$(CC) $(CFLAGS) $(INCS) -g main.c $(NAME_SLINK) -o $(EXECUTABLE)	
 
 all:		$(NAME)
 
@@ -79,7 +80,7 @@ clean:
 
 fclean:		clean
 			@ echo "Deleting $(CYAN)malloc $(CLR)library ..."
-			@ $(RM) $(NAME) $(NAME_LINK)
+			@ $(RM) $(NAME) $(NAME_SLINK)
 
 re:			fclean all
 

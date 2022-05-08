@@ -6,10 +6,11 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:45 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/23 14:15:50 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/08 15:33:07 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "malloc_internal.h"
 #include "malloc.h"
 
 void	*calloc(size_t count, size_t size)

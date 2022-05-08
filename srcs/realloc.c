@@ -6,10 +6,11 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:49 by besellem          #+#    #+#             */
-/*   Updated: 2022/03/30 13:11:51 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/08 15:33:21 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "malloc_internal.h"
 #include "malloc.h"
 
 static void	*_realloc_wrapper(void *ptr, size_t size)

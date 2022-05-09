@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:19:54 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 16:49:26 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 01:17:44 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,9 @@ int		main(void)
 	const char			str[] = "Hello World!";
 	const size_t		size = sizeof(str);
 	
-	// print_blocks();
-	__unused void		*ptr = malloc(65490);
-	// print_blocks();
+	print_blocks();
+	__unused void		*ptr = malloc(sizeof(char)); // 65490
+	print_blocks();
 	
 	__unused void		*ptr2 = malloc(65449);
 	// print_blocks();
@@ -55,28 +55,35 @@ int		main(void)
 		return (1);
 	}
 
-	
 	ptr = realloc(ptr, 65537);
-	// print_blocks();
+	print_blocks();
 
 	ptr = realloc(ptr, 0);
-	free(ptr);
-	ptr = realloc(ptr, 1000);
-	ptr = realloc(ptr, 1);
-	ptr = realloc(ptr, 3493049);
-
-
 	print_blocks();
+	
+	free(ptr);
+	print_blocks();
+	
+	ptr = realloc(ptr, 1000);
+	print_blocks();
+
+	ptr = realloc(ptr, 1);
+	print_blocks();
+	
+	ptr = realloc(ptr, 3493049);
+	print_blocks();
+
+	// print_blocks();
 	show_alloc_mem();
 
 	free(ptr);
 	free(ptr2);
-	// free(ptr2);
+	free(ptr2);
 	free(ptr3);
 	free(ptr4);
 	free(ptr5);
 	free(ptr6);
-	// show_memory_leaks(true);
+	show_memory_leaks();
 
 	return (0);
 }
@@ -90,7 +97,7 @@ int		main(void)
 
 // 	print_blocks();
 // 	free(tester_variable);
-// 	show_memory_leaks(true);
+// 	show_memory_leaks();
 // 	print_blocks();
 // 	return (0);
 // }

@@ -6,17 +6,23 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 16:01:13 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 01:11:28 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MALLOC_INTERNAL_H
 # define MALLOC_INTERNAL_H
 
+# if 0
+#  define MALLOC_DEBUG
+# endif
+
 /*
 ** -- INCLUDES --
 */
-# include <stdio.h>  // to remove
+# ifdef MALLOC_DEBUG
+#  include <stdio.h>
+# endif
 # include <unistd.h>
 # include <pthread.h>
 # include <sys/mman.h>
@@ -34,10 +40,6 @@
 # define BLUE  "\e[1;34m"
 # define CLR   "\e[0m"
 
-# if 0
-#  define MALLOC_DEBUG
-# endif
-
 # define SYSCALL_ERR  (-1)
 
 # define BLOCK_FREED  0
@@ -50,20 +52,9 @@
 # define TINY         ( ZONE_TINY / 128UL)
 # define SMALL        (ZONE_SMALL / 128UL)
 
-# define MIN(x, y)    ((x) < (y) ? (x) : (y))
-# define MAX(x, y)    ((x) > (y) ? (x) : (y))
-# define DIFF(x, y)   (MAX(x, y) - MIN(x, y))
 
-
-// TO REMOVE
-# if defined(MALLOC_DEBUG)
-#  define LOG             printf(BLUE "%s:%d:" CLR " Here\n", __FILE__, __LINE__);
-#  define print_blocks()  _print_blocks_wrapper()
-# else
-#  define LOG
-#  define print_blocks() _print_blocks_wrapper()
-# endif /* defined(MALLOC_DEBUG) */
-
+// TODO: to remove
+// #define LOG  printf(RED "%s:%d:" CLR" Here\n", __FILE__, __LINE__);
 
 /*
 ** -- FUNCTION-LIKE MACROS --
@@ -88,6 +79,10 @@
 # else
 #  error "Unsupported architecture: what kind of system do you own ?"
 # endif
+
+# define MIN(x, y)       ((x) < (y) ? (x) : (y))
+# define MAX(x, y)       ((x) > (y) ? (x) : (y))
+# define DIFF(x, y)      (MAX(x, y) - MIN(x, y))
 
 
 /*
@@ -153,21 +148,24 @@ struct s_block
 void		*ft_memset(void *b, int c, size_t len);
 void		*ft_memcpy(void *dst, const void *src, size_t n);
 void		ft_putaddr(const void *addr, int pad);
+void		ft_putaddr_fd(const void *addr, int fd, int pad);
 void		ft_putstr(const char *s);
+void		ft_putstr_fd(int fd, const char *s);
 void		ft_putnstr(char *s, size_t n);
 void		ft_putnbr(int n, int pad);
 int			ft_nblen_base(long long n, int base);
 
 block_t		**first_block(void);
 block_t		*last_block(void);
-void		_print_blocks_wrapper(void);
+block_t		*_next_zone(bool reset);
+void		print_blocks(void);
 void		split_block(block_t *block, size_t size);
 
 /* join all contiguous freed blocks */
 void		join_blocks(void);
 
-
-
+void		deallocate_empty_zones(void);
+void		_free_all_blocks(void);
 
 /*
 ** a wrapper of free() to print debug info.

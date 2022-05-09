@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 09:57:55 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 15:57:41 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 23:59:29 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,6 @@ void	*calloc(size_t count, size_t size);
 
 void	show_alloc_mem(void);
 void	show_alloc_mem_ex(void);
-void	show_memory_leaks(bool free_all);
+void	show_memory_leaks(void);
 
 #endif

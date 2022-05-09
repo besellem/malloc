@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:49 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/08 15:33:21 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 01:16:20 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,22 +38,24 @@ static void	*_realloc_wrapper(void *ptr, size_t size)
 	*/
 	if (BLOCK_FREED == block->_status)
 	{
-#ifdef MALLOC_DEBUG
-		dprintf(STDERR_FILENO, "Warning: Attempting realloc() on a freed pointer\n");
-#endif
+		ft_putstr_fd(STDERR_FILENO,
+			BLUE "Warning:" CLR " Attempting realloc() on a freed pointer\n");
 		return (NULL);
 	}
 	
 	if ((block->_size - BLOCK_SIZE) >= _size_needed)
-	{	
+	{
 		split_block(block, _size_needed);
 		return (ptr);
 	}
 	
 	if (block->_next &&
 		block->_next->_status == BLOCK_FREED &&
-		(block->_size + block->_next->_size) >= _size_needed)
+		(block->_size + block->_next->_size) >= _size_needed &&
+		block->_zone == block->_next->_zone &&
+		DIFF((size_t)block, (size_t)block->_next) == block->_size)
 	{
+		deallocate_empty_zones();
 		block->_status = BLOCK_FREED;
 		join_blocks();
 		block->_status = BLOCK_IN_USE;

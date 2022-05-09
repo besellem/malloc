@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/03 00:00:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 15:38:43 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 00:06:16 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,26 @@ void	*ft_memcpy(void *dst, const void *src, size_t n)
 
 
 /*
-** PRINT FUNCTIONS
+** FT_NBLEN_BASE
+*/
+int	ft_nblen_base(long long n, int base)
+{
+	int	len;
+
+	if (n < 0)
+		n = -n;
+	len = 1;
+	while (n / base > 0)
+	{
+		n /= base;
+		++len;
+	}
+	return (len);
+}
+
+
+/*
+** FT_PUTADDR
 */
 static void	_print_padding(int fd, int n, char c)
 {
@@ -97,15 +116,18 @@ static void	_print_padding(int fd, int n, char c)
 }
 
 #define HEXA "0123456789abcdef"
-static void	ft_putaddr_fd(const void *addr, int fd, int pad)
+void	ft_putaddr_fd(const void *addr, int fd, int pad)
 {
 	size_t	ad = (size_t)addr;
 	size_t	div = 16;
 
-	if (!addr)
-		_print_padding(fd, pad - 4, ' ');
-	else
-		_print_padding(fd, pad - 14, ' ');
+	if (pad > 0)
+	{	
+		if (!addr)
+			_print_padding(fd, pad - 4, ' ');
+		else
+			_print_padding(fd, DIFF(ft_nblen_base((size_t)addr, 10), pad) - 1, ' ');
+	}
 	
 	write(fd, "0x", 2);
 	while (ad / div >= 16)
@@ -123,6 +145,10 @@ void	ft_putaddr(const void *addr, int pad)
 	ft_putaddr_fd(addr, STDOUT_FILENO, pad);
 }
 
+
+/*
+** FT_STRLEN
+*/
 static size_t	ft_strlen(const char *str)
 {
 	const char	*p = str;
@@ -134,27 +160,25 @@ static size_t	ft_strlen(const char *str)
 	return ((size_t)p - (size_t)str);
 }
 
-int	ft_nblen_base(long long n, int base)
-{
-	int	len;
 
-	if (n < 0)
-		n = -n;
-	len = 1;
-	while (n / base > 0)
-	{
-		n /= base;
-		++len;
-	}
-	return (len);
+/*
+** FT_PUTSTR
+*/
+void	ft_putstr_fd(int fd, const char *s)
+{
+	if (s)
+		write(fd, s, ft_strlen(s));
 }
 
 void	ft_putstr(const char *s)
 {
-	if (s)
-		write(STDOUT_FILENO, s, ft_strlen(s));
+	ft_putstr_fd(STDOUT_FILENO, s);
 }
 
+
+/*
+** FT_PUTNSTR
+*/
 void	ft_putnstr(char *s, size_t n)
 {
 	const size_t	len = ft_strlen(s);
@@ -167,6 +191,10 @@ void	ft_putnstr(char *s, size_t n)
 	}
 }
 
+
+/*
+** FT_PUTNBR
+*/
 static void	_putnbr(int n)
 {
 	long	nb;
@@ -190,4 +218,41 @@ void	ft_putnbr(int n, int pad)
 
 	_print_padding(STDOUT_FILENO, pad == 0 ? 0 : _pad, ' ');
 	_putnbr(n);
+}
+
+
+/*
+** PRINT_BLOCKS
+*/
+void	print_blocks(void)
+{
+	block_t	*blk = *first_block();
+
+	// ft_putaddr(*first_block());
+
+	ft_putstr(GREEN "..........................BLOCKS............................" CLR "\n");
+	ft_putstr(CYAN "      addr      |      next      |   size   | used |  zone  " CLR "\n");
+
+	for ( ; blk != NULL; blk = blk->_next)
+	{
+		ft_putstr(" ");
+		ft_putaddr(blk, 15);
+		ft_putstr("  ");
+		ft_putaddr(blk->_next, 15);
+		ft_putstr("  ");
+		ft_putnbr(blk->_size, 9);
+		ft_putstr(" ");
+		ft_putnbr(blk->_status, 4);
+		ft_putstr("      ");
+		
+		if (blk->_zone == MASK_ZONE_TINY)
+			ft_putstr(" tiny\n");
+		else if (blk->_zone == MASK_ZONE_SMALL)
+			ft_putstr("small\n");
+		else if (blk->_zone == MASK_ZONE_LARGE)
+			ft_putstr("large\n");
+		else
+			ft_putstr("\n");
+	}
+	ft_putstr(GREEN "........................BLOCKS.END.........................." CLR "\n");
 }

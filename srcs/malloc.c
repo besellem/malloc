@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 15:02:06 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 16:04:22 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,6 @@ void	_print_blocks_wrapper(void)
 	}
 	ft_putstr(GREEN "........................BLOCKS.END.........................." CLR "\n");
 }
-
 // END - TO REMOVE
 
 void	split_block(block_t *block, size_t size)
@@ -131,7 +130,7 @@ static void	_init_block(block_t *block, size_t zone_size)
 static block_t	*create_block(size_t size)
 {
 	const size_t	zone_size = define_block_size(size);
-	block_t			*block = mmap(NULL, zone_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	block_t			*block = mmap(last_block(), zone_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
 	if (MAP_FAILED == block)
 	{

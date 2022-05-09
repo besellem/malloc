@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 13:21:18 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 16:05:01 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,8 +135,7 @@ static void	_free_wrapper(void *ptr, const struct s_debug_data debug)
 	block = get_ptr_meta(ptr);
 	if (!*first_block() || BLOCK_FREED == block->_status)
 	{
-		dprintf(STDERR_FILENO, BLUE "Warning:" CLR " Attempting double free on address %p\n",
-			debug.ptr);
+		dprintf(STDERR_FILENO, BLUE "Warning:" CLR " Attempting double free on address %p\n", debug.ptr);
 
 #ifdef MALLOC_DEBUG
 		dprintf(STDERR_FILENO, "%9.0d%s:%d: " GREEN "%s" CLR " (addr %p)\n",
@@ -148,7 +147,7 @@ static void	_free_wrapper(void *ptr, const struct s_debug_data debug)
 
 	block->_status = BLOCK_FREED;
 	_deallocate_empty_zones();
-	join_blocks();
+	// join_blocks();
 }
 
 /* a wrapper to handle threads and debug infos */

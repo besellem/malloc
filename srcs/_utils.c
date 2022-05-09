@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/03 00:00:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 15:01:38 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 15:38:43 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,10 @@ void	*ft_memcpy(void *dst, const void *src, size_t n)
 	return (dst);
 }
 
+
+/*
+** PRINT FUNCTIONS
+*/
 static void	_print_padding(int fd, int n, char c)
 {
 	while (n-- > 0)
@@ -114,7 +118,7 @@ static void	ft_putaddr_fd(const void *addr, int fd, int pad)
 	}
 }
 
-inline void	ft_putaddr(const void *addr, int pad)
+void	ft_putaddr(const void *addr, int pad)
 {
 	ft_putaddr_fd(addr, STDOUT_FILENO, pad);
 }
@@ -128,6 +132,21 @@ static size_t	ft_strlen(const char *str)
 	while (*p)
 		++p;
 	return ((size_t)p - (size_t)str);
+}
+
+int	ft_nblen_base(long long n, int base)
+{
+	int	len;
+
+	if (n < 0)
+		n = -n;
+	len = 1;
+	while (n / base > 0)
+	{
+		n /= base;
+		++len;
+	}
+	return (len);
 }
 
 void	ft_putstr(const char *s)
@@ -146,21 +165,6 @@ void	ft_putnstr(char *s, size_t n)
 			n = len;
 		write(STDOUT_FILENO, s, n);
 	}
-}
-
-static int	ft_nblen_base(long long n, int base)
-{
-	int	len;
-
-	if (n < 0)
-		n = -n;
-	len = 1;
-	while (n / base > 0)
-	{
-		n /= base;
-		++len;
-	}
-	return (len);
 }
 
 static void	_putnbr(int n)
@@ -184,6 +188,6 @@ void	ft_putnbr(int n, int pad)
 {
 	const int	_pad = DIFF(pad, ft_nblen_base(n, 10));
 
-	_print_padding(STDOUT_FILENO, _pad, ' ');
+	_print_padding(STDOUT_FILENO, pad == 0 ? 0 : _pad, ' ');
 	_putnbr(n);
 }

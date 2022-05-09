@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 15:44:34 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 13:21:18 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 15:41:21 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,22 +39,32 @@ static void	_show_memory_leaks_wrapper(bool free_all)
 	{
 		if (BLOCK_IN_USE == block->_status)
 		{
-			printf(RED "* mem leak" CLR " -> %11p (%zu bytes)\n",
-				block, block->_size - BLOCK_SIZE);
+			ft_putstr(RED "* mem leak" CLR " -> ");
+			ft_putaddr(block, 11);
+			ft_putstr(" (");
+			ft_putnbr(block->_size - BLOCK_SIZE, 0);
+			ft_putstr(" bytes)\n");
 			sanitized_leaks += block->_size - BLOCK_SIZE;
-			real_leaks += block->_size;
 		}
+		real_leaks += block->_size;
 	}
 
 	if (free_all)
 		_free_all_blocks();
 
 	if (0 == real_leaks)
-		printf(GREEN "*** No memory leaks ***" CLR "\n");
+		ft_putstr(GREEN "*** No memory leaks ***" CLR "\n");
 	else
 	{
-		printf(RED "  Total memory leaked" CLR "  -> %zu bytes\n", sanitized_leaks);
-		printf(RED "  Total used by mmap()" CLR " -> %zu bytes\n", real_leaks);
+		const int _padding = MAX(ft_nblen_base(real_leaks, 10), ft_nblen_base(sanitized_leaks, 10));
+		
+		ft_putstr(RED "  Total memory leaked" CLR "  -> ");
+		ft_putnbr(sanitized_leaks, _padding);
+		ft_putstr(" bytes\n");
+		
+		ft_putstr(RED "  Total used by mmap()" CLR " -> ");
+		ft_putnbr(real_leaks, _padding);
+		ft_putstr(" bytes\n");
 	}
 }
 

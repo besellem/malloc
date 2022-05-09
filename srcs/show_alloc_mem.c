@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 13:46:32 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 13:21:18 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 16:56:49 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,12 +81,13 @@ static block_t	*_next_zone(bool reset)
 	}
 	block = block->_next;
 	zone = block->_zone;
+	zone_changed = false;
 	for ( ; block && block->_next; block = block->_next)
 	{
-		zone_changed = (zone != block->_zone) || (0 == block->_size) || \
-						DIFF((size_t)block, (size_t)block->_next) != block->_size;
 		if (zone_changed)
 			return (block);
+		zone_changed = (zone != block->_zone) || (0 == block->_size) || \
+						DIFF((size_t)block, (size_t)block->_next) != block->_size;
 	}
 	return (NULL);
 }
@@ -123,49 +124,49 @@ static void	_show_alloc_mem_wrapper(void)
 		"SMALL",
 		"LARGE"
 	};
-	// block_t				*zone = _next_sorted_zone();
-	// // block_t				*block = NULL;
+	block_t				*zone = _next_zone(true);
+	// block_t				*block = NULL;
 
-	// for ( ; zone; zone = _next_sorted_zone())
-	// {
-	// 	printf("%s: %p\n", _zone_name[zone->_zone], zone);
-	// 	// print_blocks();
-
-	// 	// for (block = zone; block->_next; block = block->_next)
-	// 	// {
-	// 	// 	printf("  %p - %p : %zu bytes\n", block, block->_next, block->_size);
-	// 	// }
-	// }
-
-
-	block_t		*block = *first_block();
-	int			zone;
-	bool		zone_changed;
-
-	if (!block)
-		return ;
-
-	/*
-	** trick to set `zone_changed' to true the first time so it prints the first zone.
-	** the first condition will systematically be true the first time
-	*/
-	zone = !block->_zone;
-	for ( ; block->_next; block = block->_next)
+	for ( ; zone; zone = _next_zone(false))
 	{
-		zone_changed = (zone != block->_zone) || (0 == block->_size) || \
-						DIFF((size_t)block, (size_t)block->_next) != block->_size;
-		if (zone_changed)
-		{
-			printf("%s: %p\n", _zone_name[block->_zone], block);
-			zone_changed = false;
-		}
-		zone = block->_zone;
-		// if (block->_size > 0)
-			printf("  %p - %p : %zu bytes\n", block, block->_next, block->_size);
+		printf("%-5s: %p\n", _zone_name[zone->_zone], zone);
+		// print_blocks();
+
+		// for (block = zone; block->_next; block = block->_next)
+		// {
+		// 	printf("  %p - %p : %zu bytes\n", block, block->_next, block->_size);
+		// }
 	}
+
+
+	// block_t		*block = *first_block();
+	// int			zone;
+	// bool		zone_changed;
+
+	// if (!block)
+	// 	return ;
+
+	// /*
+	// ** trick to set `zone_changed' to true the first time so it prints the first zone.
+	// ** the first condition will systematically be true the first time
+	// */
+	// zone = !block->_zone;
+	// for ( ; block; block = block->_next)
+	// {
+	// 	zone_changed = (zone != block->_zone) || (0 == block->_size) || \
+	// 					DIFF((size_t)block, (size_t)block->_next) != block->_size;
+	// 	if (zone_changed)
+	// 	{
+	// 		printf("%s: %p\n", _zone_name[block->_zone], block);
+	// 		zone_changed = false;
+	// 	}
+	// 	zone = block->_zone;
+	// 	// if (block->_size > 0)
+	// 		printf("  %p - %p : %zu bytes\n", block, block->_next, block->_size);
+	// }
 }
 
-void     show_alloc_mem(void)
+void	show_alloc_mem(void)
 {
 	pthread_mutex_t		_m;
 

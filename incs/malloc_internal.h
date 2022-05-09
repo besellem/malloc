@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 14:37:45 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 16:01:13 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@
 # define BLUE  "\e[1;34m"
 # define CLR   "\e[0m"
 
-# if 1
+# if 0
 #  define MALLOC_DEBUG
 # endif
 
@@ -61,7 +61,7 @@
 #  define print_blocks()  _print_blocks_wrapper()
 # else
 #  define LOG
-#  define print_blocks()
+#  define print_blocks() _print_blocks_wrapper()
 # endif /* defined(MALLOC_DEBUG) */
 
 
@@ -156,6 +156,7 @@ void		ft_putaddr(const void *addr, int pad);
 void		ft_putstr(const char *s);
 void		ft_putnstr(char *s, size_t n);
 void		ft_putnbr(int n, int pad);
+int			ft_nblen_base(long long n, int base);
 
 block_t		**first_block(void);
 block_t		*last_block(void);

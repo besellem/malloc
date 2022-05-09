@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/08 16:52:50 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 11:41:33 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,10 @@ void	_print_blocks_wrapper(void)
 {
 	block_t	*blk = *first_block();
 
-	printf("ptr: %p\n", blk);
-
 	printf(GREEN "..........................BLOCKS............................" CLR "\n");
 	printf(CYAN "      addr      |      next      |   size   | used |  zone  " CLR "\n");
 
-	for ( ; blk; blk = blk->_next)
+	for ( ; blk != NULL; blk = blk->_next)
 	{
 		printf(" %15p  %15p  %9zu %4u ",
 			blk, blk->_next, blk->_size, blk->_status);
@@ -61,7 +59,7 @@ void	split_block(block_t *block, size_t size)
 {
 	block_t	old_blk;
 
-	ft_memcpy(&old_blk, block, sizeof(block_t));
+	ft_memcpy(&old_blk, block, sizeof(*block));
 	block->_status = BLOCK_IN_USE;
 	block->_size = size;
 	block->_next = (void *)block + size;

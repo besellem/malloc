@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/08 16:50:35 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 11:45:05 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,16 @@
 			(__size + BLOCK_SIZE)))
 
 
+/* align() will help us aligning memory */
+# if   __SIZEOF_SIZE_T__ == 4 // 32 bits
+#  define align(x) ((((x) - 1) >> 2) << 2) + __SIZEOF_SIZE_T__
+# elif __SIZEOF_SIZE_T__ == 8 // 64 bits
+#  define align(x) ((((x) - 1) >> 3) << 3) + __SIZEOF_SIZE_T__
+# else
+#  error "Unsupported architecture: what kind of system do you own ?"
+# endif
+
+
 /*
 ** need two blocks: one for the actual data and the second for the footer
 ** (is the bond between this zone and the next one)
@@ -89,16 +99,6 @@
 
 # define get_ptr_meta(__ptr)         ((block_t *)((void *)(__ptr) - BLOCK_SIZE))
 # define get_ptr_user(__ptr)         ((void *)(__ptr) + BLOCK_SIZE)
-
-
-/* align() will help us aligning memory */
-# if   __SIZEOF_SIZE_T__ == 4 // 32 bits
-#  define align(x) ((((x) - 1) >> 2) << 2) + __SIZEOF_SIZE_T__
-# elif __SIZEOF_SIZE_T__ == 8 // 64 bits
-#  define align(x) ((((x) - 1) >> 3) << 3) + __SIZEOF_SIZE_T__
-# else
-#  error "Unsupported architecture: what kind of system do you own ?"
-# endif
 
 
 /*
@@ -137,14 +137,14 @@ enum
 **  _size   : size of the block (also contains meta size)
 **  _next   : pointer to the next block in the list
 */
-typedef	struct // __attribute__((packed)) // error maker
-s_block
+typedef	struct s_block	block_t;
+struct s_block
 {
 	unsigned char	_zone : 2;
 	unsigned char	_status : 2;
 	size_t			_size;
-	struct s_block	*_next;
-}	block_t;
+	block_t	*_next;
+};
 
 
 /*
@@ -163,8 +163,8 @@ void		join_blocks(void);
 
 
 /*
-** a wrapper of free() to print debug info
-** working with MALLOC_DEBUG macro
+** a wrapper of free() to print debug info.
+** works with MALLOC_DEBUG macro
 */
 void		__free(void *ptr, const struct s_debug_data debug);
 

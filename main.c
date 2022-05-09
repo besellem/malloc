@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:19:54 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/08 16:46:32 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 11:46:51 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,7 @@
 
 // int		main(void)
 // {
-// 	const int			pagesize = getpagesize();
-
-// 	printf("pagesize:   [%8d]\n", pagesize);
+// 	printf("pagesize:   [%8d]\n", getpagesize());
 // 	printf("BLOCK_SIZE: [%8zu]\n", BLOCK_SIZE);
 // 	printf("ZONE_TINY:  [%8zu]\n", ZONE_TINY);
 // 	printf("ZONE_SMALL: [%8zu]\n", ZONE_SMALL);
@@ -97,9 +95,8 @@ int		main(void)
 
 	// show_alloc_mem();
 	// free(tester_variable);
-	// free(tester_variable);
 
 	print_blocks();
-	show_memory_leaks(false);
+	show_memory_leaks(true);
 	return (0);
 }

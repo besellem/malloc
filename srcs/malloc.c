@@ -6,16 +6,20 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 11:41:33 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 15:02:06 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_internal.h"
 #include "malloc.h"
 
+
 block_t	**first_block(void)
 {
 	static block_t	*block = NULL;
+
+	// if (NULL != block)
+	// 	ft_memset(block, 0, sizeof(block_t));
 
 	return (&block);
 }
@@ -34,25 +38,35 @@ void	_print_blocks_wrapper(void)
 {
 	block_t	*blk = *first_block();
 
-	printf(GREEN "..........................BLOCKS............................" CLR "\n");
-	printf(CYAN "      addr      |      next      |   size   | used |  zone  " CLR "\n");
+	// ft_putaddr(*first_block());
+
+	ft_putstr(GREEN "..........................BLOCKS............................" CLR "\n");
+	ft_putstr(CYAN "      addr      |      next      |   size   | used |  zone  " CLR "\n");
 
 	for ( ; blk != NULL; blk = blk->_next)
 	{
-		printf(" %15p  %15p  %9zu %4u ",
-			blk, blk->_next, blk->_size, blk->_status);
+		ft_putstr(" ");
+		ft_putaddr(blk, 15);
+		ft_putstr("  ");
+		ft_putaddr(blk->_next, 15);
+		ft_putstr("  ");
+		ft_putnbr(blk->_size, 9);
+		ft_putstr(" ");
+		ft_putnbr(blk->_status, 4);
+		ft_putstr(" ");
 		
 		if (blk->_zone == MASK_ZONE_TINY)
-			printf("%9s\n", "tiny");
+			ft_putstr("   tiny\n");
 		else if (blk->_zone == MASK_ZONE_SMALL)
-			printf("%9s\n", "small");
+			ft_putstr("  small\n");
 		else if (blk->_zone == MASK_ZONE_LARGE)
-			printf("%9s\n", "large");
+			ft_putstr("  large\n");
 		else
-			printf(RED"%9s"CLR"\n", "unknown");
+			ft_putstr("\n");
 	}
-	printf(GREEN "........................BLOCKS.END.........................." CLR "\n");
+	ft_putstr(GREEN "........................BLOCKS.END.........................." CLR "\n");
 }
+
 // END - TO REMOVE
 
 void	split_block(block_t *block, size_t size)

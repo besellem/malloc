@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 11:45:05 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 14:37:45 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@
 // TO REMOVE
 # if defined(MALLOC_DEBUG)
 #  define LOG             printf(BLUE "%s:%d:" CLR " Here\n", __FILE__, __LINE__);
-#  define print_blocks()  LOG; _print_blocks_wrapper()
+#  define print_blocks()  _print_blocks_wrapper()
 # else
 #  define LOG
 #  define print_blocks()
@@ -152,6 +152,10 @@ struct s_block
 */
 void		*ft_memset(void *b, int c, size_t len);
 void		*ft_memcpy(void *dst, const void *src, size_t n);
+void		ft_putaddr(const void *addr, int pad);
+void		ft_putstr(const char *s);
+void		ft_putnstr(char *s, size_t n);
+void		ft_putnbr(int n, int pad);
 
 block_t		**first_block(void);
 block_t		*last_block(void);
@@ -160,6 +164,8 @@ void		split_block(block_t *block, size_t size);
 
 /* join all contiguous freed blocks */
 void		join_blocks(void);
+
+
 
 
 /*

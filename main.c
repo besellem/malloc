@@ -6,14 +6,14 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:19:54 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 11:46:51 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 15:00:34 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
 
 #if 1
-# include "malloc_internal.h"
+// # include "malloc_internal.h"
 # include "malloc.h"
 #else
 #include <unistd.h>
@@ -88,15 +88,14 @@
 // 	return (0);
 // }
 
-
 int		main(void)
 {
-	// __unused void	*tester_variable = malloc(sizeof(int));
+	__unused void	*tester_variable = malloc(sizeof(int));
 
 	// show_alloc_mem();
 	// free(tester_variable);
 
 	print_blocks();
-	show_memory_leaks(true);
+	// show_memory_leaks(true);
 	return (0);
 }

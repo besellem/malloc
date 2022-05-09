@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 09:57:55 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/08 15:25:25 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/09 14:30:52 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 ** free() deallocates the memory space pointed to by ptr, which must have been a
 ** pointer returned by a previous call to malloc(), calloc(), or realloc().
 */
-#ifdef MALLOC_DEBUG
+#ifndef MALLOC_DEBUG
 # define free(__ptr) \
 	__free(__ptr, (const struct s_debug_data){ __ptr, #__ptr, __FILE__, __LINE__ })
 #else

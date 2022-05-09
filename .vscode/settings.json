@@ -13,6 +13,8 @@
 		"vector": "c",
 		"iterator": "c",
 		"utility": "c",
-		"variant": "c"
+		"variant": "c",
+		"stdio.h": "c",
+		"libc-header-start.h": "c"
 	}
 }

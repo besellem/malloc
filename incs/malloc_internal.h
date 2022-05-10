@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 16:33:17 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 17:15:26 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,8 +168,8 @@ block_t		*_next_zone(bool reset);
 void		_print_blocks(void);
 void		split_block(block_t *block, size_t size);
 
-/* join all contiguous freed blocks */
-void		join_blocks(void);
+/* join all contiguous freed blocks on each zones */
+void		defragment_blocks(void);
 
 void		deallocate_empty_zones(void);
 void		_free_all_blocks(void);

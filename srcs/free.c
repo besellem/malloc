@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 16:31:44 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 17:15:14 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,36 +33,32 @@ __attribute__((destructor)) void	_free_all_blocks(void)
 }
 
 /*
-** Join all contiguous freed blocks.
-**
-** A problem arise in the case of 2 different zones that we want to join :
-** If the first is, let say, a ZONE_TINY, and the second is a ZONE_SMALL,
-** the join will blend the two, losing track of 'em.
-** This will not create a bug per say, but it'll mess up the display of
-** show_alloc_mem() function, which is bad.
+** Join all contiguous freed blocks on all zones (defragmentation)
 */
-void	join_blocks(void)
+void	defragment_blocks(void)
 {
-	block_t	*block = *first_block();
-	block_t	*next;
+	block_t	*zone = _next_zone(true);
+	block_t	*next_zone = zone;
 
-	if (!block || !block->_next)
-		return ;
-
-	while (block && block->_next)
+	while (zone && next_zone)
 	{
-		if (BLOCK_FREED == block->_status && BLOCK_FREED == block->_next->_status)
+		next_zone = _next_zone(false);
+		for (block_t *block = zone; block && block != next_zone && block->_next && block->_next != next_zone; )
 		{
-			next = block->_next;
-			if (BLOCK_FREED == block->_status && BLOCK_FREED == next->_status)
+			if (BLOCK_FREED == block->_status && BLOCK_FREED == block->_next->_status)
 			{
-				block->_size += next->_size;
-				block->_next = next->_next;
+				const block_t *next_block = block->_next;
+				
+				if (BLOCK_FREED == block->_status && BLOCK_FREED == next_block->_status)
+				{
+					block->_size += next_block->_size;
+					block->_next = next_block->_next;
+				}
+				block = zone;
 			}
-			block = *first_block();
+			else
+				block = block->_next;
 		}
-		else
-			block = block->_next;
 	}
 }
 
@@ -191,6 +187,7 @@ static void	_free_wrapper(void *ptr, const struct s_debug_data debug)
 
 	block->_status = BLOCK_FREED;
 	deallocate_empty_zones();
+	defragment_blocks();
 }
 
 /* a wrapper to handle threads and debug infos */

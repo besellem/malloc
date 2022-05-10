@@ -6,23 +6,20 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 01:11:28 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 16:33:17 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MALLOC_INTERNAL_H
 # define MALLOC_INTERNAL_H
 
-# if 0
+# if 1
 #  define MALLOC_DEBUG
 # endif
 
 /*
 ** -- INCLUDES --
 */
-# ifdef MALLOC_DEBUG
-#  include <stdio.h>
-# endif
 # include <unistd.h>
 # include <pthread.h>
 # include <sys/mman.h>
@@ -53,8 +50,17 @@
 # define SMALL        (ZONE_SMALL / 128UL)
 
 
-// TODO: to remove
-// #define LOG  printf(RED "%s:%d:" CLR" Here\n", __FILE__, __LINE__);
+# define LOG(msg)  \
+	ft_putstr(CYAN); \
+	ft_putstr(__FILE__); \
+	ft_putstr(":"); \
+	ft_putnbr(__LINE__, 0); \
+	ft_putstr(": " CLR); \
+	ft_putstr((msg != NULL) ? msg : "Here"); \
+	ft_putstr("\n");
+
+
+# define print_blocks() LOG(NULL); _print_blocks();
 
 /*
 ** -- FUNCTION-LIKE MACROS --
@@ -100,7 +106,7 @@
 ** -- DATA STRUCTURES & TYPES --
 */
 
-/* Bigger integer size (128 bits or other) */
+/* Biggest integer size (128 bits or lower) */
 # ifdef __SIZEOF_INT128__
 typedef __uint128_t            wide_int_t;
 # else
@@ -152,13 +158,14 @@ void		ft_putaddr_fd(const void *addr, int fd, int pad);
 void		ft_putstr(const char *s);
 void		ft_putstr_fd(int fd, const char *s);
 void		ft_putnstr(char *s, size_t n);
-void		ft_putnbr(int n, int pad);
+void		ft_putnbr(long long n, int pad);
+void		ft_putnbr_fd(int fd, long long n, int pad);
 int			ft_nblen_base(long long n, int base);
 
 block_t		**first_block(void);
 block_t		*last_block(void);
 block_t		*_next_zone(bool reset);
-void		print_blocks(void);
+void		_print_blocks(void);
 void		split_block(block_t *block, size_t size);
 
 /* join all contiguous freed blocks */

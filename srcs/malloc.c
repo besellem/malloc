@@ -6,14 +6,14 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 00:43:05 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 16:08:04 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_internal.h"
 #include "malloc.h"
 
-block_t	**first_block(void)
+__attribute__((constructor)) block_t	**first_block(void)
 {
 	static block_t	*block = NULL;
 
@@ -43,23 +43,67 @@ void	split_block(block_t *block, size_t size)
 	block->_next->_next = old_blk._next;
 }
 
-static void		add_block(block_t *block)
+// add zone sorted by zone 
+static void		_add_zone(block_t *new_zone)
 {
 	block_t	*last = last_block(); // current last block
 
-	if (!block)
+	if (!new_zone)
 		return ;
 	
 	if (NULL == *first_block())
-		*first_block() = block;
+		*first_block() = new_zone;
 
-	/* add new block to the list */
+	/* add new_zone to the list */
 	if (last)
-		last->_next = block;
+		last->_next = new_zone;
+
+	// block_t	*zone;
+	// block_t	*next;
+	// block_t	*prev;
+
+	// if (!new_zone)
+	// 	return ;
+	// zone = _next_zone(true);
+	// prev = NULL;
+	// while (zone && (size_t)new_zone < (size_t)zone)
+	// {
+	// 	prev = zone;
+	// 	zone = _next_zone(false);
+		
+	// 	// get last block in zone
+	// 	while (prev && prev->_next && prev->_next != zone)
+	// 		prev = prev->_next;
+	// }
+	// if (!zone)
+	// {
+	// 	// push back
+	// 	if (*first_block())
+	// 		last_block()->_next = new_zone;
+	// 	else
+	// 		*first_block() = new_zone;
+	// }
+	// else if (!prev)
+	// {
+	// 	// push front
+	// 	new_zone->_next = *first_block();
+	// 	*first_block() = new_zone;
+	// }
+	// else
+	// {
+	// 	// push middle
+	// 	next = prev->_next;
+	// 	prev->_next = new_zone;
+		
+	// 	block_t *newz_last_block = new_zone;
+	// 	while (newz_last_block->_next)
+	// 		newz_last_block = newz_last_block->_next;
+	// 	newz_last_block->_next = next;
+	// }
 }
 
 /* find a block that is free and that */
-static block_t	*find_block(size_t size)
+static block_t	*_find_free_block(size_t size)
 {
 	block_t	*block = *first_block();
 
@@ -74,7 +118,7 @@ static block_t	*find_block(size_t size)
 	return (NULL);
 }
 
-static void	_init_block(block_t *block, size_t zone_size)
+static void	_init_zone(block_t *block, size_t zone_size)
 {
 	if (zone_size <= ZONE_TINY)
 		block->_zone = MASK_ZONE_TINY;
@@ -88,7 +132,7 @@ static void	_init_block(block_t *block, size_t zone_size)
 	block->_next = NULL;
 }
 
-static block_t	*create_block(size_t size)
+static block_t	*_create_zone(size_t size)
 {
 	const size_t	zone_size = define_block_size(size);
 	block_t			*block = mmap(last_block(), zone_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -96,14 +140,16 @@ static block_t	*create_block(size_t size)
 	if (MAP_FAILED == block)
 	{
 #ifdef MALLOC_DEBUG
-		dprintf(STDERR_FILENO, RED "Error:" CLR " mmap(%zu)\n", zone_size);
+		ft_putstr_fd(STDERR_FILENO, RED "Error:" CLR " mmap(");
+		ft_putnbr_fd(STDERR_FILENO, zone_size, 0);
+		ft_putstr_fd(STDERR_FILENO, ")\n");
 #endif
 		return (NULL);
 	}
 
-	_init_block(block, zone_size);
+	_init_zone(block, zone_size);
 	split_block(block, size);
-	add_block(block);
+	_add_zone(block);
 	return (block);
 }
 
@@ -114,10 +160,10 @@ static void	*_malloc_wrapper(size_t size)
 
 	if (0 == size)
 		return (NULL);
-	block = find_block(_size);
+	block = _find_free_block(_size);
 	if (!block)
 	{
-		block = create_block(_size);
+		block = _create_zone(_size);
 		if (!block)
 			return (NULL);
 	}

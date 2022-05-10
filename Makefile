@@ -6,7 +6,7 @@
 #    By: besellem <besellem@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/25 01:10:15 by besellem          #+#    #+#              #
-#    Updated: 2022/05/10 01:11:20 by besellem         ###   ########.fr        #
+#    Updated: 2022/05/10 16:00:31 by besellem         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,8 +43,8 @@ OBJS 		:=	$(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 ## Commands
 CC			:=	clang #gcc
-CFLAGS		:=	-Wall -Wextra -Werror -fPIC #-g3 #-O1
-LIBC		:=	$(CC) -shared -o
+CFLAGS		:=	-Wall -Wextra -Werror -g3
+LIBC		:=	$(CC) $(CFLAGS) -shared -o
 RM			:=	rm -f
 
 
@@ -66,7 +66,7 @@ $(NAME):	$(OBJS)
 			@echo "$(GREEN)Compilation $(YELLOW)of $(RED)$@ $(BLUE)done$(CLR)"
 
 $(EXECUTABLE):	main.c | $(NAME)
-			@$(CC) $(CFLAGS) $(INCS) -g main.c $(NAME_SLINK) -o $(EXECUTABLE)	
+			@$(CC) $(CFLAGS) $(INCS) main.c $(NAME_SLINK) -o $(EXECUTABLE)	
 
 all:		$(NAME)
 
@@ -90,6 +90,6 @@ $(BUILD_DIR):
 
 $(OBJ_DIR)/%.o:$(SRCS_DIR)/%.c ./incs/malloc.h | $(BUILD_DIR)
 			@ echo "Compiling $(YELLOW)$< $(CLR)..."
-			@ $(CC) $(CFLAGS) -c $< -o $@ $(INCS)
+			@ $(CC) $(CFLAGS) -fPIC -c $< -o $@ $(INCS)
 
 .PHONY:		all clean fclean re

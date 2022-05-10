@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 01:11:04 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 16:31:44 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ void	deallocate_empty_zones(void)
 		}
 
 		if (zone_empty)
-		{	
+		{
 			if (!prev_zone)
 			{
 				*first_block() = next_zone; // point to the next zone
@@ -110,8 +110,11 @@ void	deallocate_empty_zones(void)
 			if (SYSCALL_ERR == munmap(zone, zone_size))
 			{
 #ifdef MALLOC_DEBUG
-				dprintf(STDERR_FILENO, RED "Error: " CLR "munmap(%p, %zu)\n",
-					zone, zone_size);
+				ft_putstr_fd(STDERR_FILENO, RED "Error: " CLR "munmap(");
+				ft_putaddr_fd(zone, STDERR_FILENO, 0);
+				ft_putstr_fd(STDERR_FILENO, ", ");
+				ft_putnbr_fd(STDERR_FILENO, zone_size, 0);
+				ft_putstr_fd(STDERR_FILENO, ")\n");
 #endif
 			}
 
@@ -123,6 +126,32 @@ void	deallocate_empty_zones(void)
 			last_from_prev_zone = _block;
 		}
 	}
+}
+
+static int	_find_block(const block_t *block)
+{
+	for (block_t *tmp = *first_block(); tmp != NULL; tmp = tmp->_next)
+	{
+		if (tmp == block)
+			return (1);
+	}
+	return (0);
+}
+
+static void	_print_debug_info(const struct s_debug_data debug)
+{
+#ifdef MALLOC_DEBUG
+	ft_putstr_fd(STDERR_FILENO, debug.file);
+	ft_putstr_fd(STDERR_FILENO, ":");
+	ft_putnbr_fd(STDERR_FILENO, debug.line, 0);
+	ft_putstr_fd(STDERR_FILENO, ": " GREEN);
+	ft_putstr_fd(STDERR_FILENO, debug.ptr_name);
+	ft_putstr_fd(STDERR_FILENO, CLR "\n");
+#else
+	(void)debug;
+	ft_putstr_fd(STDERR_FILENO,
+		"define " CYAN "MALLOC_DEBUG" CLR " to get more informations\n");
+#endif
 }
 
 static void	_free_wrapper(void *ptr, const struct s_debug_data debug)
@@ -137,24 +166,31 @@ static void	_free_wrapper(void *ptr, const struct s_debug_data debug)
 	** must be a double free since the pointer is not NULL
 	*/
 	block = get_ptr_meta(ptr);
+
+
+	// this may also be a double free, but it's zone is already freed
+	if (!_find_block(block))
+	{
+		ft_putstr_fd(STDERR_FILENO,
+			RED "Error:" CLR " Pointer " GREEN);
+		ft_putaddr_fd(debug.ptr, STDERR_FILENO, 0);
+		ft_putstr_fd(STDERR_FILENO, CLR " was not allocated\n       ");
+		_print_debug_info(debug);
+		return ;
+	}
+	
 	if (!*first_block() || BLOCK_FREED == block->_status)
 	{
 		ft_putstr_fd(STDERR_FILENO,
 			BLUE "Warning:" CLR " Attempting double free on address ");
 		ft_putaddr_fd(debug.ptr, STDERR_FILENO, 0);
-		ft_putstr_fd(STDERR_FILENO, "\n");
-
-#ifdef MALLOC_DEBUG
-		dprintf(STDERR_FILENO, "%9.0d%s:%d: " GREEN "%s" CLR "\n",
-			0, debug.file, debug.line, debug.ptr_name);
-#endif
-
+		ft_putstr_fd(STDERR_FILENO, "\n         ");
+		_print_debug_info(debug);
 		return ;
 	}
 
 	block->_status = BLOCK_FREED;
 	deallocate_empty_zones();
-	// join_blocks();
 }
 
 /* a wrapper to handle threads and debug infos */

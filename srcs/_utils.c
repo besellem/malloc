@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/03 00:00:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 00:06:16 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 15:40:37 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ void	ft_putaddr_fd(const void *addr, int fd, int pad)
 	if (pad > 0)
 	{	
 		if (!addr)
-			_print_padding(fd, pad - 4, ' ');
+			_print_padding(fd, pad - 6, ' ');
 		else
 			_print_padding(fd, DIFF(ft_nblen_base((size_t)addr, 10), pad) - 1, ' ');
 	}
@@ -195,36 +195,39 @@ void	ft_putnstr(char *s, size_t n)
 /*
 ** FT_PUTNBR
 */
-static void	_putnbr(int n)
+static void	_putnbr(int fd, long long n)
 {
-	long	nb;
-	long	tmp;
+	long long	tmp;
 
-	nb = (long)n;
-	if (nb < 0)
+	if (n < 0)
 	{
-		nb = -nb;
-		write(STDOUT_FILENO, "-", 1);
+		n = -n;
+		write(fd, "-", 1);
 	}
-	if (nb / 10 > 0)
-		_putnbr(nb / 10);
-	tmp = nb % 10 + 48;
-	write(STDOUT_FILENO, &tmp, 1);
+	if (n / 10 > 0)
+		_putnbr(fd, n / 10);
+	tmp = n % 10 + 48;
+	write(fd, &tmp, 1);
 }
 
-void	ft_putnbr(int n, int pad)
+void	ft_putnbr_fd(int fd, long long n, int pad)
 {
 	const int	_pad = DIFF(pad, ft_nblen_base(n, 10));
 
-	_print_padding(STDOUT_FILENO, pad == 0 ? 0 : _pad, ' ');
-	_putnbr(n);
+	_print_padding(fd, (0 == pad ? 0 : _pad), ' ');
+	_putnbr(fd, n);
+}
+
+void	ft_putnbr(long long n, int pad)
+{
+	ft_putnbr_fd(STDOUT_FILENO, n, pad);
 }
 
 
 /*
 ** PRINT_BLOCKS
 */
-void	print_blocks(void)
+void	_print_blocks(void)
 {
 	block_t	*blk = *first_block();
 
@@ -236,9 +239,9 @@ void	print_blocks(void)
 	for ( ; blk != NULL; blk = blk->_next)
 	{
 		ft_putstr(" ");
-		ft_putaddr(blk, 15);
+		ft_putaddr(blk, 17);
 		ft_putstr("  ");
-		ft_putaddr(blk->_next, 15);
+		ft_putaddr(blk->_next, 17);
 		ft_putstr("  ");
 		ft_putnbr(blk->_size, 9);
 		ft_putstr(" ");

@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 13:46:32 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 01:07:43 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 16:19:01 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "malloc.h"
 #include <stdbool.h>
 
+// zones are already sorted by address
 block_t	*_next_zone(bool reset)
 {
 	static block_t	*block = NULL;
@@ -38,7 +39,8 @@ block_t	*_next_zone(bool reset)
 	return (NULL);
 }
 
-static block_t	*_next_sorted_zone(bool reset)
+// static
+block_t	*_next_sorted_zone(bool reset)
 {
 	static block_t	*last_min = NULL;
 	static block_t	*max = NULL;
@@ -78,26 +80,36 @@ static block_t	*_next_sorted_zone(bool reset)
 static void	_show_alloc_mem_wrapper(void)
 {
 	static const char	*_zone_name[] = {
-		"TINY",
+		"TINY ",
 		"SMALL",
 		"LARGE"
 	};
+
+#ifdef __linux__
+	block_t				*zone = _next_zone(true);
+#else
 	block_t				*zone = _next_sorted_zone(true);
+#endif
+
 	block_t				*next_zone = NULL;
 	block_t				*block = NULL;
 
 	for ( ; zone; zone = next_zone)
 	{
+#ifdef __linux__
+		next_zone = _next_zone(false);
+#else
 		next_zone = _next_sorted_zone(false);
+#endif
 		
 		ft_putstr(_zone_name[zone->_zone]);
 		ft_putstr(": ");
 		ft_putaddr(zone, 0);
 		ft_putstr("\n");
 		
-		for (block = zone; block != next_zone; block = block->_next)
+		for (block = zone; block && block != next_zone; block = block->_next)
 		{
-			ft_putstr("\t");
+			ft_putstr("  ");
 			ft_putaddr(block, 0);
 			ft_putstr(" - ");
 			ft_putaddr(block + block->_size, 0);

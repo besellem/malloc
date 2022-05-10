@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:49 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 01:16:20 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/10 16:26:39 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,12 @@ static void	*_realloc_wrapper(void *ptr, size_t size)
 		DIFF((size_t)block, (size_t)block->_next) == block->_size)
 	{
 		deallocate_empty_zones();
+		
+		// trick
 		block->_status = BLOCK_FREED;
 		join_blocks();
 		block->_status = BLOCK_IN_USE;
+		
 		split_block(block, _size_needed);
 		return (ptr);
 	}

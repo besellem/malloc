@@ -6,14 +6,14 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 09:55:50 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 12:08:39 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MALLOC_INTERNAL_H
 # define MALLOC_INTERNAL_H
 
-#if 1
+#if 0
 # define MALLOC_DEBUG
 #endif
 

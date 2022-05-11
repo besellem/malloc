@@ -6,31 +6,12 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 17:15:14 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 09:55:23 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "malloc_internal.h"
 #include "malloc.h"
-
-/*
-** frees everything at the end of the program automatically
-*/
-__attribute__((destructor)) void	_free_all_blocks(void)
-{
-	block_t	*block = *first_block();
-
-	while (block)
-	{
-		if (BLOCK_FREED != block->_status && block->_size > 0)
-		{
-			free(get_ptr_user(block));
-			block = *first_block();
-		}
-		else
-			block = block->_next;
-	}
-}
+#include "malloc_internal.h"
 
 /*
 ** Join all contiguous freed blocks on all zones (defragmentation)
@@ -134,14 +115,14 @@ static int	_find_block(const block_t *block)
 	return (0);
 }
 
-static void	_print_debug_info(const struct s_debug_data debug)
+static void	_print_debug_info(const struct s_debug_data *debug)
 {
 #ifdef MALLOC_DEBUG
-	ft_putstr_fd(STDERR_FILENO, debug.file);
+	ft_putstr_fd(STDERR_FILENO, debug->file);
 	ft_putstr_fd(STDERR_FILENO, ":");
-	ft_putnbr_fd(STDERR_FILENO, debug.line, 0);
+	ft_putnbr_fd(STDERR_FILENO, debug->line, 0);
 	ft_putstr_fd(STDERR_FILENO, ": " GREEN);
-	ft_putstr_fd(STDERR_FILENO, debug.ptr_name);
+	ft_putstr_fd(STDERR_FILENO, debug->ptr_name);
 	ft_putstr_fd(STDERR_FILENO, CLR "\n");
 #else
 	(void)debug;
@@ -150,7 +131,8 @@ static void	_print_debug_info(const struct s_debug_data debug)
 #endif
 }
 
-static void	_free_wrapper(void *ptr, const struct s_debug_data debug)
+NOEXPORT
+void	_free_internal(void *ptr, const struct s_debug_data *debug)
 {
 	block_t	*block;
 
@@ -163,23 +145,22 @@ static void	_free_wrapper(void *ptr, const struct s_debug_data debug)
 	*/
 	block = get_ptr_meta(ptr);
 
-
 	// this may also be a double free, but it's zone is already freed
 	if (!_find_block(block))
 	{
 		ft_putstr_fd(STDERR_FILENO,
 			RED "Error:" CLR " Pointer " GREEN);
-		ft_putaddr_fd(debug.ptr, STDERR_FILENO, 0);
+		ft_putaddr_fd(debug->ptr, STDERR_FILENO, 0);
 		ft_putstr_fd(STDERR_FILENO, CLR " was not allocated\n       ");
 		_print_debug_info(debug);
 		return ;
 	}
-	
+
 	if (!*first_block() || BLOCK_FREED == block->_status)
 	{
 		ft_putstr_fd(STDERR_FILENO,
 			BLUE "Warning:" CLR " Attempting double free on address ");
-		ft_putaddr_fd(debug.ptr, STDERR_FILENO, 0);
+		ft_putaddr_fd(debug->ptr, STDERR_FILENO, 0);
 		ft_putstr_fd(STDERR_FILENO, "\n         ");
 		_print_debug_info(debug);
 		return ;
@@ -191,17 +172,13 @@ static void	_free_wrapper(void *ptr, const struct s_debug_data debug)
 }
 
 /* a wrapper to handle threads and debug infos */
-void	__free(void *ptr, const struct s_debug_data debug)
+void	_free_wrapper(void *ptr, const struct s_debug_data *debug)
 {
-	pthread_mutex_t		_m;
+	MLOG("free()");
 
-	pthread_mutex_init(&_m, NULL);
-	pthread_mutex_lock(&_m);
-
-	_free_wrapper(ptr, debug);
-
-	pthread_mutex_unlock(&_m);
-	pthread_mutex_destroy(&_m);
+	pthread_mutex_lock(&g_malloc_mutex);
+	_free_internal(ptr, debug);
+	pthread_mutex_unlock(&g_malloc_mutex);
 }
 
 /*
@@ -213,6 +190,6 @@ void	__free(void *ptr, const struct s_debug_data debug)
 #ifndef MALLOC_DEBUG
 void	free(void *ptr)
 {
-	__free(ptr, (const struct s_debug_data){ ptr, NULL, NULL, 0 });
+	_free_wrapper(ptr, FREE_INTERNAL_DEBUG(ptr));
 }
 #endif

@@ -6,27 +6,27 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:49 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 17:16:27 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 09:39:55 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "malloc_internal.h"
 #include "malloc.h"
+#include "malloc_internal.h"
 
-static void	*_realloc_wrapper(void *ptr, size_t size)
+static void	*_realloc_internal(void *ptr, size_t size)
 {
 	const size_t	_size_needed = get_sanitized_size(size);
 	void			*new_ptr = NULL;
 	block_t			*block;
 
 	if (NULL == ptr)
-		return (malloc(size));
+		return (_malloc_internal(size));
 
 	
 	/* implementation specific (on mac, frees the pointer) */
 	if (0 == size)
 	{
-		free(ptr);
+		_free_internal(ptr, FREE_INTERNAL_DEBUG(ptr));
 		return (NULL);
 	}
 
@@ -65,11 +65,11 @@ static void	*_realloc_wrapper(void *ptr, size_t size)
 	}
 	else
 	{
-		new_ptr = malloc(size);
+		new_ptr = _malloc_internal(size);
 		if (!new_ptr)
 			return (NULL);
 		ft_memcpy(new_ptr, ptr, block->_size - BLOCK_SIZE);
-		free(ptr);
+		_free_internal(ptr, FREE_INTERNAL_DEBUG(ptr));
 		return (new_ptr);
 	}
 
@@ -78,16 +78,13 @@ static void	*_realloc_wrapper(void *ptr, size_t size)
 
 void	*realloc(void *ptr, size_t size)
 {
-	void				*new_ptr = NULL;
-	pthread_mutex_t		_m;
+	void	*new_ptr = NULL;
 
-	pthread_mutex_init(&_m, NULL);
-	pthread_mutex_lock(&_m);
+	MLOG("realloc()");
 
-	new_ptr = _realloc_wrapper(ptr, size);
-	
-	pthread_mutex_unlock(&_m);
-	pthread_mutex_destroy(&_m);
+	pthread_mutex_lock(&g_malloc_mutex);
+	new_ptr = _realloc_internal(ptr, size);
+	pthread_mutex_unlock(&g_malloc_mutex);
 
 	return (new_ptr);
 }

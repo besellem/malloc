@@ -6,14 +6,14 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/21 15:44:34 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/09 23:59:14 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 09:39:00 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "malloc_internal.h"
 #include "malloc.h"
+#include "malloc_internal.h"
 
-static void	_show_memory_leaks_wrapper(void)
+static void	_show_memory_leaks_internal(void)
 {
 	const block_t	*block = *first_block();
 	size_t			sanitized_leaks = 0;
@@ -51,13 +51,9 @@ static void	_show_memory_leaks_wrapper(void)
 
 void	show_memory_leaks(void)
 {
-	pthread_mutex_t		_m;
+	MLOG("show_memory_leaks()");
 
-	pthread_mutex_init(&_m, NULL);
-	pthread_mutex_lock(&_m);
-
-	_show_memory_leaks_wrapper();
-
-	pthread_mutex_unlock(&_m);
-	pthread_mutex_destroy(&_m);
+	pthread_mutex_lock(&g_malloc_mutex);
+	_show_memory_leaks_internal();
+	pthread_mutex_unlock(&g_malloc_mutex);
 }

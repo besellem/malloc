@@ -1,25 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   reallocf.c                                         :+:      :+:    :+:   */
+/*   defs.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/10/18 10:32:39 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 09:38:51 by besellem         ###   ########.fr       */
+/*   Created: 2022/05/11 07:23:42 by besellem          #+#    #+#             */
+/*   Updated: 2022/05/11 09:29:20 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "malloc.h"
-#include "malloc_internal.h"
+#ifndef DEFS_H
+# define DEFS_H
 
-void	*reallocf(void *ptr, size_t size)
-{
-	MLOG("reallocf()");
+#ifndef __has_extension
+# define __has_extension(x) 0
+#endif
 
-	void	*p = realloc(ptr, size);
+#define NOEXPORT __attribute__((visibility("hidden")))
 
-	if (NULL == p)
-		free(ptr);
-	return (p);
-}
+#endif

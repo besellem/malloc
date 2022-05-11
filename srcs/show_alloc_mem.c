@@ -6,13 +6,12 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 13:46:32 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 16:19:01 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 09:51:24 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "malloc_internal.h"
 #include "malloc.h"
-#include <stdbool.h>
+#include "malloc_internal.h"
 
 // zones are already sorted by address
 block_t	*_next_zone(bool reset)
@@ -77,7 +76,7 @@ block_t	*_next_sorted_zone(bool reset)
 	return (last_min);
 }
 
-static void	_show_alloc_mem_wrapper(void)
+static void	_show_alloc_mem_internal(void)
 {
 	static const char	*_zone_name[] = {
 		"TINY ",
@@ -122,13 +121,9 @@ static void	_show_alloc_mem_wrapper(void)
 
 void	show_alloc_mem(void)
 {
-	pthread_mutex_t		_m;
+	MLOG("show_alloc_mem()");
 
-	pthread_mutex_init(&_m, NULL);
-	pthread_mutex_lock(&_m);
-
-	_show_alloc_mem_wrapper();
-
-	pthread_mutex_unlock(&_m);
-	pthread_mutex_destroy(&_m);
+	pthread_mutex_lock(&g_malloc_mutex);
+	_show_alloc_mem_internal();
+	pthread_mutex_unlock(&g_malloc_mutex);
 }

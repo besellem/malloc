@@ -6,12 +6,15 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 16:08:04 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 09:38:42 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "malloc_internal.h"
 #include "malloc.h"
+#include "malloc_internal.h"
+
+pthread_mutex_t	g_malloc_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 
 __attribute__((constructor)) block_t	**first_block(void)
 {
@@ -153,7 +156,8 @@ static block_t	*_create_zone(size_t size)
 	return (block);
 }
 
-static void	*_malloc_wrapper(size_t size)
+NOEXPORT
+void	*_malloc_internal(size_t size)
 {
 	const size_t	_size = get_sanitized_size(size);
 	block_t			*block;
@@ -173,15 +177,12 @@ static void	*_malloc_wrapper(size_t size)
 void	*malloc(size_t size)
 {
 	void				*ptr;
-	pthread_mutex_t		_m;
 
-	pthread_mutex_init(&_m, NULL);
-	pthread_mutex_lock(&_m);
+	MLOG("malloc()");
 
-	ptr = _malloc_wrapper(size);
-	
-	pthread_mutex_unlock(&_m);
-	pthread_mutex_destroy(&_m);
+	pthread_mutex_lock(&g_malloc_mutex);
+	ptr = _malloc_internal(size);
+	pthread_mutex_unlock(&g_malloc_mutex);
 
 	return (ptr);
 }

@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:19:54 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 15:11:19 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 17:28:31 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int		main(void)
 	__unused void		*ptr4 = malloc(524264);
 	// print_blocks();
 
-	__unused void		*ptr5 = malloc(524210);
+	__unused void		*ptr5 = malloc(2147483647UL * 2147483647UL);
 	// print_blocks();
 
 	__unused void		*ptr6 = malloc(sizeof(char));
@@ -56,7 +56,6 @@ int		main(void)
 	// print_blocks();
 	
 	free(ptr);
-	// ptr = NULL;
 	// print_blocks();
 	
 	ptr = realloc(ptr, 1000);
@@ -68,26 +67,33 @@ int		main(void)
 	ptr = realloc(ptr, 3493049);
 	// print_blocks();
 
-	print_blocks();
+	// print_blocks();
 	show_alloc_mem();
 
 	free(ptr);
+	// print_blocks();
 
 	free(ptr2);
-	free(ptr2);
+	// print_blocks();
 
+	free(ptr2);
+	// print_blocks();
+	
 	free(ptr3);
+	// print_blocks();
 
 	free(ptr4);
+	// print_blocks();
 
 	free(ptr5);
+	// print_blocks();
 
 	free(ptr6);
 	free(ptr6);
 	
+	free((void *)0x1024);
 
 	// print_blocks();
-
 	show_memory_leaks();
 
 	return (0);
@@ -97,10 +103,11 @@ int		main(void)
 // {
 // 	__unused void	*tester_variable = malloc(sizeof(int));
 
-// 	// show_alloc_mem();
-// 	// free(tester_variable);
-
+// 	show_alloc_mem();
 // 	free(tester_variable);
+// 	show_alloc_mem();
+// 	free(tester_variable);
+	
 // 	show_memory_leaks();
 // 	return (0);
 // }

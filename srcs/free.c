@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 15:11:48 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 17:14:45 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ void	defragment_blocks(void)
 	while (zone && next_zone)
 	{
 		next_zone = _next_zone(false);
+
 		for (block_t *block = zone; block && block != next_zone && block->_next && block->_next != next_zone; )
 		{
 			if (BLOCK_FREED == block->_status && BLOCK_FREED == block->_next->_status)
@@ -40,11 +41,11 @@ void	defragment_blocks(void)
 			else
 				block = block->_next;
 		}
+		zone = next_zone;
 	}
 }
 
-static
-void	_deallocate_empty_zones(void)
+static void	_deallocate_empty_zones(void)
 {
 	block_t		*zone = _next_zone(true);
 	block_t		*next_zone = NULL;
@@ -68,9 +69,10 @@ void	_deallocate_empty_zones(void)
 			if (zone_empty && !_block->_next)
 				break ;
 
-			if (_block->_status == BLOCK_IN_USE)
+			if (BLOCK_IN_USE == _block->_status)
 				zone_empty = false;
 		}
+		zone_size += _block->_size; // add zone's last block size
 
 		if (zone_empty)
 		{
@@ -85,7 +87,15 @@ void	_deallocate_empty_zones(void)
 					last_from_prev_zone->_next = _block->_next;
 			}
 
-			if ((-1) == munmap(zone, zone_size))
+#ifdef MALLOC_DEBUG
+			ft_putstr_fd(STDERR_FILENO, BLUE "munmap(");
+			ft_putaddr_fd(zone, STDERR_FILENO, 0);
+			ft_putstr_fd(STDERR_FILENO, ", ");
+			ft_putnbr_fd(STDERR_FILENO, zone_size, 0);
+			ft_putstr_fd(STDERR_FILENO, ")" CLR "\n");
+#endif
+
+			if (munmap(zone, zone_size) != 0)
 			{
 #ifdef MALLOC_DEBUG
 				ft_putstr_fd(STDERR_FILENO, RED "Error: " CLR "munmap(");

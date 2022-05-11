@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/03 00:00:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 15:06:23 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 17:21:29 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,12 +99,10 @@ void	*ft_memcpy(void *dst, const void *src, size_t n)
 /*
 ** FT_NBLEN_BASE
 */
-int	ft_nblen_base(long long n, int base)
+int	ft_nblen_base(size_t n, int base)
 {
 	int	len;
 
-	if (n < 0)
-		n = -n;
 	len = 1;
 	while (n / base > 0)
 	{
@@ -204,22 +202,17 @@ void	ft_putnstr(char *s, size_t n)
 /*
 ** FT_PUTNBR
 */
-static void	_putnbr(int fd, long long n)
+static void	_putnbr(int fd, size_t n)
 {
-	long long	tmp;
+	size_t	tmp;
 
-	if (n < 0)
-	{
-		n = -n;
-		write(fd, "-", 1);
-	}
 	if (n / 10 > 0)
 		_putnbr(fd, n / 10);
 	tmp = n % 10 + 48;
 	write(fd, &tmp, 1);
 }
 
-void	ft_putnbr_fd(int fd, long long n, int pad)
+void	ft_putnbr_fd(int fd, size_t n, int pad)
 {
 	const int	_pad = DIFF(pad, ft_nblen_base(n, 10));
 
@@ -227,7 +220,7 @@ void	ft_putnbr_fd(int fd, long long n, int pad)
 	_putnbr(fd, n);
 }
 
-void	ft_putnbr(long long n, int pad)
+void	ft_putnbr(size_t n, int pad)
 {
 	ft_putnbr_fd(STDOUT_FILENO, n, pad);
 }

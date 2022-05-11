@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 15:07:14 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 17:54:17 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,9 +177,9 @@ void		ft_putaddr_fd(const void *addr, int fd, int pad);
 void		ft_putstr(const char *s);
 void		ft_putstr_fd(int fd, const char *s);
 void		ft_putnstr(char *s, size_t n);
-void		ft_putnbr(long long n, int pad);
-void		ft_putnbr_fd(int fd, long long n, int pad);
-int			ft_nblen_base(long long n, int base);
+void		ft_putnbr(size_t n, int pad);
+void		ft_putnbr_fd(int fd, size_t n, int pad);
+int			ft_nblen_base(size_t n, int base);
 void		_print_blocks(void);
 
 block_t		**first_block(void);

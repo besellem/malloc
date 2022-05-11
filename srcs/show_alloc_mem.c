@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 13:46:32 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 14:46:43 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 16:47:09 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,46 +34,13 @@ block_t	*_next_zone(bool reset)
 		}
 		if (zone != block->_zone)
 			return (block);
+		if (BLOCK_SIZE == block->_size) // TODO: check if it's the zone's last block
+		{
+			block = block->_next;
+			return (block);
+		}
 	}
 	return (NULL);
-}
-
-// static
-block_t	*_next_sorted_zone(bool reset)
-{
-	static block_t	*last_min = NULL;
-	static block_t	*max = NULL;
-	block_t			*zone = _next_zone(true);
-	block_t			*min;
-
-	if (reset)
-	{
-		last_min = zone;
-		max = NULL;
-		for ( ; zone; zone = _next_zone(false))
-		{
-			if (last_min > zone)
-				last_min = zone;
-			if (max < zone)
-				max = zone;
-		}
-		return (last_min);
-	}
-	if (zone == last_min)
-		zone = _next_zone(false);
-	min = max;
-	for ( ; zone; zone = _next_zone(false))
-	{
-		if (min > last_min)
-		{
-			if (min > zone && zone > last_min)
-				min = zone;
-		}
-	}
-	if (last_min == max)
-		return (NULL);
-	last_min = min;
-	return (last_min);
 }
 
 static void	_show_alloc_mem_internal(void)
@@ -84,34 +51,25 @@ static void	_show_alloc_mem_internal(void)
 		"LARGE"
 	};
 
-#ifdef __linux__
 	block_t				*zone = _next_zone(true);
-#else
-	block_t				*zone = _next_sorted_zone(true);
-#endif
-
 	block_t				*next_zone = NULL;
 	block_t				*block = NULL;
 
 	for ( ; zone; zone = next_zone)
 	{
-#ifdef __linux__
 		next_zone = _next_zone(false);
-#else
-		next_zone = _next_sorted_zone(false);
-#endif
 		
 		ft_putstr(_zone_name[zone->_zone]);
 		ft_putstr(": ");
 		ft_putaddr(zone, 0);
 		ft_putstr("\n");
-		
+
 		for (block = zone; block && block != next_zone; block = block->_next)
 		{
 			ft_putstr("  ");
 			ft_putaddr(block, 0);
 			ft_putstr(" - ");
-			ft_putaddr(block + block->_size, 0);
+			ft_putaddr((void *)block + block->_size, 0);
 			ft_putstr(" : ");
 			ft_putnbr(block->_size, 0);
 			ft_putstr(" bytes\n");

@@ -6,20 +6,25 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 12:08:39 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 15:07:14 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MALLOC_INTERNAL_H
 # define MALLOC_INTERNAL_H
 
-#if 0
+
+/*
+** -- MALLOC ENV MACROS --
+*/
+#if 1
 # define MALLOC_DEBUG
 #endif
 
 #if 0
 # define MALLOC_VERBOSE
 #endif
+
 
 /*
 ** -- INCLUDES --
@@ -33,56 +38,60 @@
 #include "defs.h"
 
 
+/*
+** -- GLOBALS --
+*/
 extern pthread_mutex_t	g_malloc_mutex;
 
 
 /*
 ** -- DEFINES --
 */
-#define RED          "\e[1;31m"
-#define GREEN        "\e[1;32m"
-#define CYAN         "\e[1;36m"
-#define BLUE         "\e[1;34m"
-#define CLR          "\e[0m"
-
-#define SYSCALL_ERR  (-1)
+#define RED          "\033[1;31m"
+#define GREEN        "\033[1;32m"
+#define CYAN         "\033[1;36m"
+#define BLUE         "\033[1;34m"
+#define CLR          "\033[0m"
 
 #define BLOCK_FREED  0
 #define BLOCK_IN_USE 1
 #define BLOCK_SIZE   sizeof(block_t)
 
-#define ZONE_TINY    ((size_t)(getpagesize() *  32))
+#define ZONE_TINY    ((size_t)(getpagesize() *  4))
 #define ZONE_SMALL   ((size_t)(getpagesize() * 32))
 
 #define TINY         ( ZONE_TINY / 128UL)
 #define SMALL        (ZONE_SMALL / 128UL)
 
 
-#define LOG(msg)                                                               \
+/*
+** -- LOGS & DEBUGS --
+*/
+#define LOG(__msg)                                                             \
 	ft_putstr(CYAN);                                                           \
 	ft_putstr(__FILE__);                                                       \
 	ft_putstr(":");                                                            \
 	ft_putnbr(__LINE__, 0);                                                    \
 	ft_putstr(": " CLR);                                                       \
-	ft_putstr(((msg) != NULL) ? (msg) : "Here");                               \
+	ft_putstr(((__msg) != NULL) ? (__msg) : "Here");                           \
 	ft_putstr("\n");
 
 #ifdef MALLOC_VERBOSE
-# define MLOG(func) LOG(func)
+# define MLOG(__func_name) LOG(__func_name)
 #else
-# define MLOG(func)
+# define MLOG(__func_name)
 #endif
 
-
 #define print_blocks() LOG(NULL); _print_blocks();
+
 
 /*
 ** -- FUNCTION-LIKE MACROS --
 */
 
 /*
-** Define which zone size is best fitted to allocate.
-** We add BLOCK_SIZE to the size to be sure that the zone size will always be
+** Find which zone size is best fitted to allocate.
+** We add BLOCK_SIZE to __size to be sure that the zone size will always be
 ** greater than the size requested.
 */
 #define define_block_size(__size)                                              \
@@ -91,18 +100,21 @@ extern pthread_mutex_t	g_malloc_mutex;
 			(__size + BLOCK_SIZE)))
 
 
-/* align() will help us aligning memory */
+/*
+** find the next aligned address / size.
+*/
 #if   4 == __SIZEOF_SIZE_T__ // 32 bits
-# define align(x) ((((x) - 1) >> 2) << 2) + __SIZEOF_SIZE_T__
+# define align(__x) ((((__x) - 1) >> 2) << 2) + __SIZEOF_SIZE_T__
 #elif 8 == __SIZEOF_SIZE_T__ // 64 bits
-# define align(x) ((((x) - 1) >> 3) << 3) + __SIZEOF_SIZE_T__
+# define align(__x) ((((__x) - 1) >> 3) << 3) + __SIZEOF_SIZE_T__
 #else
 # error "Unsupported architecture: what kind of system do you own ?"
 #endif
 
-#define MIN(x, y)       ((x) < (y) ? (x) : (y))
-#define MAX(x, y)       ((x) > (y) ? (x) : (y))
-#define DIFF(x, y)      (MAX(x, y) - MIN(x, y))
+
+#define MIN(x, y)  ((x) < (y) ? (x) : (y))
+#define MAX(x, y)  ((x) > (y) ? (x) : (y))
+#define DIFF(x, y) (MAX(x, y) - MIN(x, y))
 
 
 /*
@@ -110,7 +122,7 @@ extern pthread_mutex_t	g_malloc_mutex;
 ** (is the bond between this zone and the next one)
 ** (BLOCK_SIZE << 1) is actually an optimized version of (BLOCK_SIZE * 2)
 */
-#define get_sanitized_size(__size)  align(__size + (BLOCK_SIZE << 1))
+#define get_sanitized_size(__size)  align((__size) + (BLOCK_SIZE << 1))
 
 #define get_ptr_meta(__ptr)         ((block_t *)((void *)(__ptr) - BLOCK_SIZE))
 #define get_ptr_user(__ptr)         ((void *)(__ptr) + BLOCK_SIZE)
@@ -120,40 +132,15 @@ extern pthread_mutex_t	g_malloc_mutex;
 ** -- DATA STRUCTURES & TYPES --
 */
 
-/* Biggest integer size (128 bits or lower) */
-#ifdef __SIZEOF_INT128__
-typedef __uint128_t            wide_int_t;
-#else // !__SIZEOF_INT128__
-typedef unsigned long long     wide_int_t;
-#endif // __SIZEOF_INT128__
-
-
-struct	s_debug_data
+// TODO: unused, to remove
+typedef	struct s_debug_data	t_debug_data;
+struct s_debug_data
 {
 	void	*ptr;
 	char	*ptr_name;
 	char	*file;
 	int		line;
 };
-
-#ifdef MALLOC_DEBUG
-# define FREE_INTERNAL_DEBUG(__ptr) \
-	&(const struct s_debug_data){                                              \
-		.ptr = (__ptr),                                                        \
-		.ptr_name = #__ptr,                                                    \
-		.file = __FILE__,                                                      \
-		.line = __LINE__                                                       \
-	}
-#else
-# define FREE_INTERNAL_DEBUG(__ptr) \
-	&(const struct s_debug_data){                                              \
-		.ptr = (__ptr),                                                        \
-		.ptr_name = NULL,                                                      \
-		.file = NULL,                                                          \
-		.line = 0                                                              \
-	}
-#endif
-
 
 enum
 {
@@ -193,25 +180,17 @@ void		ft_putnstr(char *s, size_t n);
 void		ft_putnbr(long long n, int pad);
 void		ft_putnbr_fd(int fd, long long n, int pad);
 int			ft_nblen_base(long long n, int base);
+void		_print_blocks(void);
 
 block_t		**first_block(void);
 block_t		*last_block(void);
 block_t		*_next_zone(bool reset);
-void		_print_blocks(void);
 void		split_block(block_t *block, size_t size);
 
 /* join all contiguous freed blocks on each zones */
 void		defragment_blocks(void);
 
-void		deallocate_empty_zones(void);
-
-/*
-** a wrapper of free() to print debug info.
-** works with MALLOC_DEBUG macro
-*/
-void		_free_wrapper(void *ptr, const struct s_debug_data *debug);
-
-void		_free_internal(void *ptr, const struct s_debug_data *debug);
+void		_free_internal(void *ptr);
 void		*_malloc_internal(size_t size);
 
 #endif

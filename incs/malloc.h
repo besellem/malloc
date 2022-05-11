@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 09:57:55 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 08:52:22 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 14:24:28 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,6 @@
 # define MALLOC_H
 
 #include <stddef.h>
-
-
-/*
-** free() deallocates the memory space pointed to by ptr, which must have been a
-** pointer returned by a previous call to malloc(), calloc(), or realloc().
-*/
-#ifdef MALLOC_DEBUG
-# define free(__ptr) _free_wrapper((__ptr), FREE_INTERNAL_DEBUG((__ptr)))
-#else
-void	free(void *ptr);
-#endif
 
 
 /*
@@ -52,6 +41,14 @@ void	*reallocf(void *ptr, size_t size);
 ** memory to 0.
 */
 void	*calloc(size_t count, size_t size);
+
+
+/*
+** free() deallocates the memory space pointed to by ptr, which must have been a
+** pointer returned by a previous call to malloc(), calloc(), or realloc().
+*/
+void	free(void *ptr);
+
 
 void	show_alloc_mem(void);
 void	show_alloc_mem_ex(void);

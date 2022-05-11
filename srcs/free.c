@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 09:55:23 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 15:11:48 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,13 +43,14 @@ void	defragment_blocks(void)
 	}
 }
 
-void	deallocate_empty_zones(void)
+static
+void	_deallocate_empty_zones(void)
 {
 	block_t		*zone = _next_zone(true);
 	block_t		*next_zone = NULL;
 	block_t		*prev_zone = NULL;
 	block_t		*last_from_prev_zone = NULL;
-	block_t		*_block;
+	block_t		*_block = NULL;
 
 	size_t		zone_size;
 	bool		zone_empty;
@@ -84,7 +85,7 @@ void	deallocate_empty_zones(void)
 					last_from_prev_zone->_next = _block->_next;
 			}
 
-			if (SYSCALL_ERR == munmap(zone, zone_size))
+			if ((-1) == munmap(zone, zone_size))
 			{
 #ifdef MALLOC_DEBUG
 				ft_putstr_fd(STDERR_FILENO, RED "Error: " CLR "munmap(");
@@ -115,81 +116,52 @@ static int	_find_block(const block_t *block)
 	return (0);
 }
 
-static void	_print_debug_info(const struct s_debug_data *debug)
-{
-#ifdef MALLOC_DEBUG
-	ft_putstr_fd(STDERR_FILENO, debug->file);
-	ft_putstr_fd(STDERR_FILENO, ":");
-	ft_putnbr_fd(STDERR_FILENO, debug->line, 0);
-	ft_putstr_fd(STDERR_FILENO, ": " GREEN);
-	ft_putstr_fd(STDERR_FILENO, debug->ptr_name);
-	ft_putstr_fd(STDERR_FILENO, CLR "\n");
-#else
-	(void)debug;
-	ft_putstr_fd(STDERR_FILENO,
-		"define " CYAN "MALLOC_DEBUG" CLR " to get more informations\n");
-#endif
-}
-
 NOEXPORT
-void	_free_internal(void *ptr, const struct s_debug_data *debug)
+void	_free_internal(void *ptr)
 {
 	block_t	*block;
 
 	if (NULL == ptr)
 		return ;
 
-	/*
-	** if there's no allocated blocks left or if the pointer has been freed,
-	** must be a double free since the pointer is not NULL
-	*/
 	block = get_ptr_meta(ptr);
 
-	// this may also be a double free, but it's zone is already freed
+	/*
+	** this may also be a double free in case its zone is already freed.
+	** unfortunately, we can't check if it existed in the first place.
+	*/
 	if (!_find_block(block))
 	{
 		ft_putstr_fd(STDERR_FILENO,
 			RED "Error:" CLR " Pointer " GREEN);
-		ft_putaddr_fd(debug->ptr, STDERR_FILENO, 0);
-		ft_putstr_fd(STDERR_FILENO, CLR " was not allocated\n       ");
-		_print_debug_info(debug);
+		ft_putaddr_fd(ptr, STDERR_FILENO, 0);
+		ft_putstr_fd(STDERR_FILENO, CLR " was not allocated\n");
 		return ;
 	}
 
+	/*
+	** if there's no allocated blocks left or if the pointer has been freed,
+	** must be a double free since the pointer is not NULL.
+	*/
 	if (!*first_block() || BLOCK_FREED == block->_status)
 	{
 		ft_putstr_fd(STDERR_FILENO,
 			BLUE "Warning:" CLR " Attempting double free on address ");
-		ft_putaddr_fd(debug->ptr, STDERR_FILENO, 0);
-		ft_putstr_fd(STDERR_FILENO, "\n         ");
-		_print_debug_info(debug);
+		ft_putaddr_fd(ptr, STDERR_FILENO, 0);
+		ft_putstr_fd(STDERR_FILENO, "\n");
 		return ;
 	}
 
 	block->_status = BLOCK_FREED;
-	deallocate_empty_zones();
+	_deallocate_empty_zones();
 	defragment_blocks();
 }
 
-/* a wrapper to handle threads and debug infos */
-void	_free_wrapper(void *ptr, const struct s_debug_data *debug)
+void	free(void *ptr)
 {
 	MLOG("free()");
 
 	pthread_mutex_lock(&g_malloc_mutex);
-	_free_internal(ptr, debug);
+	_free_internal(ptr);
 	pthread_mutex_unlock(&g_malloc_mutex);
 }
-
-/*
-** free() is defined in two forms :
-** - if MALLOC_DEBUG is defined, it's a macro (defined in malloc.h)
-**   that calls the wrapper above
-** - if not, it's a function (below)
-*/
-#ifndef MALLOC_DEBUG
-void	free(void *ptr)
-{
-	_free_wrapper(ptr, FREE_INTERNAL_DEBUG(ptr));
-}
-#endif

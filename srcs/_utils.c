@@ -6,11 +6,20 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/03 00:00:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/10 15:40:37 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 15:06:23 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc_internal.h"
+
+
+/* Biggest integer size (128 bits or lower) */
+#ifdef __SIZEOF_INT128__
+typedef __uint128_t            wide_int_t;
+#else // !__SIZEOF_INT128__
+typedef unsigned long long     wide_int_t;
+#endif // __SIZEOF_INT128__
+
 
 /*
 ** MEMSET
@@ -230,8 +239,6 @@ void	ft_putnbr(long long n, int pad)
 void	_print_blocks(void)
 {
 	block_t	*blk = *first_block();
-
-	// ft_putaddr(*first_block());
 
 	ft_putstr(GREEN "..........................BLOCKS............................" CLR "\n");
 	ft_putstr(CYAN "      addr      |      next      |   size   | used |  zone  " CLR "\n");

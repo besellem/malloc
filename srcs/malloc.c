@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 09:38:42 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 15:07:05 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 pthread_mutex_t	g_malloc_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
-__attribute__((constructor)) block_t	**first_block(void)
+block_t	**first_block(void)
 {
 	static block_t	*block = NULL;
 
@@ -112,7 +112,7 @@ static block_t	*_find_free_block(size_t size)
 
 	for ( ; block != NULL; block = block->_next)
 	{
-		if (BLOCK_FREED == block->_status && block->_size >= size)
+		if (BLOCK_FREED == block->_status && block->_size > size)
 		{
 			split_block(block, size);
 			return (block);

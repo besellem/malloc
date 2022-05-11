@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:49 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 09:39:55 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 14:25:07 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static void	*_realloc_internal(void *ptr, size_t size)
 	/* implementation specific (on mac, frees the pointer) */
 	if (0 == size)
 	{
-		_free_internal(ptr, FREE_INTERNAL_DEBUG(ptr));
+		_free_internal(ptr);
 		return (NULL);
 	}
 
@@ -69,7 +69,7 @@ static void	*_realloc_internal(void *ptr, size_t size)
 		if (!new_ptr)
 			return (NULL);
 		ft_memcpy(new_ptr, ptr, block->_size - BLOCK_SIZE);
-		_free_internal(ptr, FREE_INTERNAL_DEBUG(ptr));
+		_free_internal(ptr);
 		return (new_ptr);
 	}
 

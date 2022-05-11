@@ -6,18 +6,20 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:19:54 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 09:53:15 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/11 15:11:19 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
+#include <unistd.h>
 
-#include "malloc_internal.h"
+#include "malloc_internal.h" // print_blocks()
 #include "malloc.h"
 
 #ifndef __unused
 # define __unused __attribute__((unused))
 #endif
+
 
 int		main(void)
 {
@@ -66,9 +68,8 @@ int		main(void)
 	ptr = realloc(ptr, 3493049);
 	// print_blocks();
 
-	// print_blocks();
+	print_blocks();
 	show_alloc_mem();
-
 
 	free(ptr);
 

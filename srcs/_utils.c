@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/03 00:00:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 17:21:29 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/12 12:17:29 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ static void	_print_padding(int fd, int n, char c)
 }
 
 #define HEXA "0123456789abcdef"
-void	ft_putaddr_fd(const void *addr, int fd, int pad)
+void	ft_putaddr_fd(int fd, const void *addr, int pad)
 {
 	size_t	ad = (size_t)addr;
 	size_t	div = 16;
@@ -149,7 +149,7 @@ void	ft_putaddr_fd(const void *addr, int fd, int pad)
 
 void	ft_putaddr(const void *addr, int pad)
 {
-	ft_putaddr_fd(addr, STDOUT_FILENO, pad);
+	ft_putaddr_fd(STDOUT_FILENO, addr, pad);
 }
 
 
@@ -184,22 +184,6 @@ void	ft_putstr(const char *s)
 
 
 /*
-** FT_PUTNSTR
-*/
-void	ft_putnstr(char *s, size_t n)
-{
-	const size_t	len = ft_strlen(s);
-
-	if (s)
-	{
-		if (n > len)
-			n = len;
-		write(STDOUT_FILENO, s, n);
-	}
-}
-
-
-/*
 ** FT_PUTNBR
 */
 static void	_putnbr(int fd, size_t n)
@@ -229,7 +213,7 @@ void	ft_putnbr(size_t n, int pad)
 /*
 ** PRINT_BLOCKS
 */
-void	_print_blocks(void)
+void	_print_blocks_wrapper(void)
 {
 	block_t	*blk = *first_block();
 

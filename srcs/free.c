@@ -6,48 +6,16 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 17:14:45 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/12 13:01:50 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
 #include "malloc_internal.h"
 
-/*
-** Join all contiguous freed blocks on all zones (defragmentation)
-*/
-void	defragment_blocks(void)
-{
-	block_t	*zone = _next_zone(true);
-	block_t	*next_zone = zone;
-
-	while (zone && next_zone)
-	{
-		next_zone = _next_zone(false);
-
-		for (block_t *block = zone; block && block != next_zone && block->_next && block->_next != next_zone; )
-		{
-			if (BLOCK_FREED == block->_status && BLOCK_FREED == block->_next->_status)
-			{
-				const block_t *next_block = block->_next;
-				
-				if (BLOCK_FREED == block->_status && BLOCK_FREED == next_block->_status)
-				{
-					block->_size += next_block->_size;
-					block->_next = next_block->_next;
-				}
-				block = zone;
-			}
-			else
-				block = block->_next;
-		}
-		zone = next_zone;
-	}
-}
-
 static void	_deallocate_empty_zones(void)
 {
-	block_t		*zone = _next_zone(true);
+	block_t		*zone = get_next_zone(true);
 	block_t		*next_zone = NULL;
 	block_t		*prev_zone = NULL;
 	block_t		*last_from_prev_zone = NULL;
@@ -58,7 +26,7 @@ static void	_deallocate_empty_zones(void)
 
 	for ( ; zone != NULL; zone = next_zone)
 	{
-		next_zone = _next_zone(false);
+		next_zone = get_next_zone(false);
 
 		zone_size = 0;
 		zone_empty = true;
@@ -89,7 +57,7 @@ static void	_deallocate_empty_zones(void)
 
 #ifdef MALLOC_DEBUG
 			ft_putstr_fd(STDERR_FILENO, BLUE "munmap(");
-			ft_putaddr_fd(zone, STDERR_FILENO, 0);
+			ft_putaddr_fd(STDERR_FILENO, zone, 0);
 			ft_putstr_fd(STDERR_FILENO, ", ");
 			ft_putnbr_fd(STDERR_FILENO, zone_size, 0);
 			ft_putstr_fd(STDERR_FILENO, ")" CLR "\n");
@@ -99,14 +67,19 @@ static void	_deallocate_empty_zones(void)
 			{
 #ifdef MALLOC_DEBUG
 				ft_putstr_fd(STDERR_FILENO, RED "Error: " CLR "munmap(");
-				ft_putaddr_fd(zone, STDERR_FILENO, 0);
+				ft_putaddr_fd(STDERR_FILENO, zone, 0);
 				ft_putstr_fd(STDERR_FILENO, ", ");
 				ft_putnbr_fd(STDERR_FILENO, zone_size, 0);
 				ft_putstr_fd(STDERR_FILENO, ")\n");
 #endif
 			}
 
-			next_zone = _next_zone(true);
+#ifdef MALLOC_VERBOSE
+			MLOG("zone deallocated");
+			print_blocks();
+#endif
+
+			next_zone = get_next_zone(true);
 		}
 		else
 		{
@@ -126,7 +99,6 @@ static int	_find_block(const block_t *block)
 	return (0);
 }
 
-NOEXPORT
 void	_free_internal(void *ptr)
 {
 	block_t	*block;
@@ -144,7 +116,7 @@ void	_free_internal(void *ptr)
 	{
 		ft_putstr_fd(STDERR_FILENO,
 			RED "Error:" CLR " Pointer " GREEN);
-		ft_putaddr_fd(ptr, STDERR_FILENO, 0);
+		ft_putaddr_fd(STDERR_FILENO, ptr, 0);
 		ft_putstr_fd(STDERR_FILENO, CLR " was not allocated\n");
 		return ;
 	}
@@ -153,11 +125,11 @@ void	_free_internal(void *ptr)
 	** if there's no allocated blocks left or if the pointer has been freed,
 	** must be a double free since the pointer is not NULL.
 	*/
-	if (!*first_block() || BLOCK_FREED == block->_status)
+	if (BLOCK_FREED == block->_status)
 	{
 		ft_putstr_fd(STDERR_FILENO,
 			BLUE "Warning:" CLR " Attempting double free on address ");
-		ft_putaddr_fd(ptr, STDERR_FILENO, 0);
+		ft_putaddr_fd(STDERR_FILENO, ptr, 0);
 		ft_putstr_fd(STDERR_FILENO, "\n");
 		return ;
 	}

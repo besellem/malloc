@@ -6,7 +6,7 @@
 #    By: besellem <besellem@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/25 01:10:15 by besellem          #+#    #+#              #
-#    Updated: 2022/05/11 09:48:02 by besellem         ###   ########.fr        #
+#    Updated: 2022/05/12 13:38:48 by besellem         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,7 +35,8 @@ SRCS	:=	calloc.c \
 			reallocf.c \
 			show_alloc_mem.c \
 			show_memory_leaks.c \
-			_utils.c
+			_block_utils.c \
+			_utils.c \
 
 ## Objects
 OBJS 		:=	$(SRCS:%.c=$(OBJ_DIR)/%.o)
@@ -88,7 +89,7 @@ $(BUILD_DIR):
 			@ echo "Creating $(RED)$@ $(CLR)..."
 			@ mkdir $@ $(DIRS)
 
-$(OBJ_DIR)/%.o:$(SRCS_DIR)/%.c ./incs/malloc.h | $(BUILD_DIR)
+$(OBJ_DIR)/%.o:$(SRCS_DIR)/%.c ./incs/malloc_internal.h | $(BUILD_DIR)
 			@ echo "Compiling $(YELLOW)$< $(CLR)..."
 			@ $(CC) $(CFLAGS) -fPIC -c $< -o $@ $(INCS)
 

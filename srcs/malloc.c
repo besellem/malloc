@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:41 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 17:55:24 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/12 12:59:35 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,36 +16,6 @@
 pthread_mutex_t	g_malloc_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
-block_t	**first_block(void)
-{
-	static block_t	*block = NULL;
-
-	return (&block);
-}
-
-block_t	*last_block(void)
-{
-	block_t	*block = *first_block();
-
-	while (block && block->_next != NULL)
-		block = block->_next;
-	return (block);
-}
-
-void	split_block(block_t *block, size_t size)
-{
-	typeof(*block)	old_blk;
-
-	ft_memcpy(&old_blk, block, sizeof(old_blk));
-	block->_status = BLOCK_IN_USE;
-	block->_size = size;
-	block->_next = (void *)block + size;
-	block->_next->_zone = old_blk._zone;
-	block->_next->_status = BLOCK_FREED;
-	block->_next->_size = DIFF(size, old_blk._size);
-	block->_next->_next = old_blk._next;
-}
-
 /*
 ** add zone sorted by addresses in ascending order
 */
@@ -54,17 +24,17 @@ static void		_add_zone(block_t *new_zone)
 	block_t	*zone;
 	block_t	*next;
 	block_t	*prev;
-	block_t *tmp;
+	block_t	*tmp;
 
 	if (!new_zone)
 		return ;
 
-	zone = _next_zone(true);
+	zone = get_next_zone(true);
 	prev = NULL;
 	while (zone && (size_t)new_zone > (size_t)zone)
 	{
 		prev = zone;
-		zone = _next_zone(false);
+		zone = get_next_zone(false);
 		
 		/* get last block in zone */
 		while (prev && prev->_next && prev->_next != zone)
@@ -101,7 +71,9 @@ static void		_add_zone(block_t *new_zone)
 	}
 }
 
-/* find a block that is free and that */
+/*
+** find a block that is free and large enough to hold size
+*/
 static block_t	*_find_free_block(size_t size)
 {
 	for (block_t *block = *first_block(); block != NULL; block = block->_next)
@@ -137,7 +109,7 @@ static block_t	*_create_zone(size_t size)
 
 #ifdef MALLOC_DEBUG
 		ft_putstr_fd(STDERR_FILENO, BLUE "mmap(");
-		ft_putaddr_fd(last_block(), STDERR_FILENO, 16);
+		ft_putaddr_fd(STDERR_FILENO, last_block(), 16);
 		ft_putstr_fd(STDERR_FILENO, ", ");
 		ft_putnbr_fd(STDERR_FILENO, zone_size, 0);
 		ft_putstr_fd(STDERR_FILENO, ", ...)" CLR "\n");
@@ -159,7 +131,6 @@ static block_t	*_create_zone(size_t size)
 	return (zone);
 }
 
-NOEXPORT
 void	*_malloc_internal(size_t size)
 {
 	const size_t	_size = get_sanitized_size(size);
@@ -179,9 +150,9 @@ void	*_malloc_internal(size_t size)
 
 void	*malloc(size_t size)
 {
-	void				*ptr;
-
 	MLOG("malloc()");
+
+	void	*ptr;
 
 	pthread_mutex_lock(&g_malloc_mutex);
 	ptr = _malloc_internal(size);

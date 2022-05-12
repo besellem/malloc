@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 17:54:17 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/12 13:38:55 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 /*
 ** -- MALLOC ENV MACROS --
 */
-#if 1
+#if 0
 # define MALLOC_DEBUG
 #endif
 
@@ -35,7 +35,6 @@
 #include <sys/resource.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include "defs.h"
 
 
 /*
@@ -81,8 +80,6 @@ extern pthread_mutex_t	g_malloc_mutex;
 #else
 # define MLOG(__func_name)
 #endif
-
-#define print_blocks() LOG(NULL); _print_blocks();
 
 
 /*
@@ -132,16 +129,6 @@ extern pthread_mutex_t	g_malloc_mutex;
 ** -- DATA STRUCTURES & TYPES --
 */
 
-// TODO: unused, to remove
-typedef	struct s_debug_data	t_debug_data;
-struct s_debug_data
-{
-	void	*ptr;
-	char	*ptr_name;
-	char	*file;
-	int		line;
-};
-
 enum
 {
 	MASK_ZONE_TINY,
@@ -170,27 +157,33 @@ struct s_block
 /*
 ** -- PROTOTYPES --
 */
-void		*ft_memset(void *b, int c, size_t len) NOEXPORT;
+
+// _utils.c
+void		*ft_memset(void *b, int c, size_t len);
 void		*ft_memcpy(void *dst, const void *src, size_t n);
 void		ft_putaddr(const void *addr, int pad);
-void		ft_putaddr_fd(const void *addr, int fd, int pad);
+void		ft_putaddr_fd(int fd, const void *addr, int pad);
 void		ft_putstr(const char *s);
 void		ft_putstr_fd(int fd, const char *s);
-void		ft_putnstr(char *s, size_t n);
 void		ft_putnbr(size_t n, int pad);
 void		ft_putnbr_fd(int fd, size_t n, int pad);
 int			ft_nblen_base(size_t n, int base);
-void		_print_blocks(void);
 
+void		_print_blocks_wrapper(void);
+#define print_blocks() _print_blocks_wrapper();
+
+
+// _block_utils.c
 block_t		**first_block(void);
 block_t		*last_block(void);
-block_t		*_next_zone(bool reset);
+block_t		*get_next_zone(bool reset);
 void		split_block(block_t *block, size_t size);
-
-/* join all contiguous freed blocks on each zones */
 void		defragment_blocks(void);
 
+
+// internals
 void		_free_internal(void *ptr);
 void		*_malloc_internal(size_t size);
+
 
 #endif

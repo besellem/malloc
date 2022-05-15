@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:19:54 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 17:28:31 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/15 13:38:10 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int		main(void)
 	// printf("ZONE_SMALL: [%8zu]\n", ZONE_SMALL);
 
 	// print_blocks();
-	__unused void		*ptr = malloc(sizeof(char)); // 65490
+	__unused void		*ptr = malloc(65490);
 	// print_blocks();
 	
 	__unused void		*ptr2 = malloc(65449);

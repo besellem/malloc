@@ -17,6 +17,7 @@
 		"stdio.h": "c",
 		"libc-header-start.h": "c",
 		"inttypes.h": "c",
-		"stddef.h": "c"
+		"stddef.h": "c",
+		"stdlib.h": "c"
 	}
 }

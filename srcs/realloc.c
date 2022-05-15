@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:49 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/11 17:30:31 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/15 13:02:03 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static void	*_realloc_internal(void *ptr, size_t size)
 	if (NULL == ptr)
 		return (_malloc_internal(size));
 
-	
+
 	/* implementation specific (on mac, frees the pointer) */
 	if (0 == size)
 	{
@@ -31,7 +31,7 @@ static void	*_realloc_internal(void *ptr, size_t size)
 	}
 
 	block = get_ptr_meta(ptr);
-	
+
 	/*
 	** if the pointer has been freed before, the behavior is undefined (C11 standard, chapter §7.22.3.5)
 	** I chose to display an error and return NULL since the user is not supposed to use a freed pointer.
@@ -42,13 +42,13 @@ static void	*_realloc_internal(void *ptr, size_t size)
 			BLUE "Warning:" CLR " Attempting realloc() on a freed pointer\n");
 		return (NULL);
 	}
-	
+
 	if ((block->_size - BLOCK_SIZE) >= _size_needed)
 	{
 		split_block(block, _size_needed);
 		return (ptr);
 	}
-	
+
 	if (block->_next &&
 		block->_next->_status == BLOCK_FREED &&
 		(block->_size + block->_next->_size) >= _size_needed &&

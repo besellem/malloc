@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:07:25 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/12 13:38:55 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/15 13:44:47 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,11 +56,13 @@ extern pthread_mutex_t	g_malloc_mutex;
 #define BLOCK_IN_USE 1
 #define BLOCK_SIZE   sizeof(block_t)
 
-#define ZONE_TINY    ((size_t)(getpagesize() *  4))
-#define ZONE_SMALL   ((size_t)(getpagesize() * 32))
+// * 4 pages
+#define ZONE_TINY    ((size_t)(getpagesize() << 2))
+// * 32 pages
+#define ZONE_SMALL   ((size_t)(getpagesize() << 5))
 
-#define TINY         ( ZONE_TINY / 128UL)
-#define SMALL        (ZONE_SMALL / 128UL)
+#define TINY         ( ZONE_TINY / 100UL)
+#define SMALL        (ZONE_SMALL / 100UL)
 
 
 /*
@@ -92,8 +94,8 @@ extern pthread_mutex_t	g_malloc_mutex;
 ** greater than the size requested.
 */
 #define define_block_size(__size)                                              \
-	(((__size) + BLOCK_SIZE <= ZONE_TINY) ? ZONE_TINY :                        \
-		(((__size) + BLOCK_SIZE <= ZONE_SMALL) ? ZONE_SMALL :                  \
+	(((__size) + BLOCK_SIZE <= TINY) ? ZONE_TINY :                             \
+		(((__size) + BLOCK_SIZE <= SMALL) ? ZONE_SMALL :                       \
 			(__size + BLOCK_SIZE)))
 
 

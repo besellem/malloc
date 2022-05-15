@@ -6,7 +6,7 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 13:46:32 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/12 12:31:15 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/15 13:23:45 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ static void	_show_alloc_mem_internal(void)
 	block_t				*zone = get_next_zone(true);
 	block_t				*next_zone = NULL;
 	block_t				*block = NULL;
+	size_t				total_size = 0;
 
 	for ( ; zone; zone = next_zone)
 	{
@@ -43,8 +44,13 @@ static void	_show_alloc_mem_internal(void)
 			ft_putstr(" : ");
 			ft_putnbr(block->_size, 0);
 			ft_putstr(" bytes\n");
+
+			total_size += block->_size;
 		}
 	}
+	ft_putstr("Total : ");
+	ft_putnbr(total_size, 0);
+	ft_putstr(" bytes\n");
 }
 
 void	show_alloc_mem(void)

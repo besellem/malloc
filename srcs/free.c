@@ -6,14 +6,19 @@
 /*   By: besellem <besellem@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 10:02:21 by besellem          #+#    #+#             */
-/*   Updated: 2022/05/12 13:01:50 by besellem         ###   ########.fr       */
+/*   Updated: 2022/05/15 13:24:44 by besellem         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
 #include "malloc_internal.h"
 
-static void	_deallocate_empty_zones(void)
+
+/*
+** Deallocate all empty zones at the end of the program
+*/
+__attribute__((destructor))
+void	deallocate_empty_zones(void)
 {
 	block_t		*zone = get_next_zone(true);
 	block_t		*next_zone = NULL;
@@ -23,6 +28,8 @@ static void	_deallocate_empty_zones(void)
 
 	size_t		zone_size;
 	bool		zone_empty;
+
+	MLOG("_deallocate_empty_zones()");
 
 	for ( ; zone != NULL; zone = next_zone)
 	{
@@ -87,6 +94,9 @@ static void	_deallocate_empty_zones(void)
 			last_from_prev_zone = _block;
 		}
 	}
+#ifdef MALLOC_VERBOSE
+	print_blocks();
+#endif
 }
 
 static int	_find_block(const block_t *block)
@@ -135,7 +145,7 @@ void	_free_internal(void *ptr)
 	}
 
 	block->_status = BLOCK_FREED;
-	_deallocate_empty_zones();
+	// deallocate_empty_zones();
 	defragment_blocks();
 }
 
